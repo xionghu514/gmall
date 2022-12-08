@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: oms-service # 服务名称
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.0.101:8848 # 配置中心地址
+        namespace: 9f4665e5-abdc-40cf-a254-26e20370c434 # 命名空间 ID
+        group: dev # 配置文件分组
+        file-extension: yml # 配置文件扩展名, 默认是 properties

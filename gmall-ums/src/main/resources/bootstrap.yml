@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: ums-service # 服务名称
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.0.101:8848 # 配置中心地址
+        namespace: 5bfa0860-a278-407a-9788-b18aba1d0182 # 命名空间 ID
+        group: dev # 配置文件分组
+        file-extension: yml # 配置文件扩展名, 默认是 properties
