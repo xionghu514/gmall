@@ -25,3 +25,13 @@
 ![](https://oss.yiki.tech/gmall/202211201555698.png)
 
 ![](https://oss.yiki.tech/oss/202212091101726.png)
+
+## 根据分类 id 分页条件查询商品列表
+
+![](https://oss.yiki.tech/oss/202212091107615.png)
+
+![](https://oss.yiki.tech/oss/202212091107316.png)
+
+![](https://oss.yiki.tech/oss/202212091107690.png)
+
+![](https://oss.yiki.tech/oss/202212091107991.png)

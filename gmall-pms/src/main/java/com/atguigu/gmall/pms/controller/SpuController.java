@@ -35,6 +35,30 @@ public class SpuController {
     private SpuService spuService;
 
     /**
+     * baseCrud: 4. 根据分类 id 分页条件查询商品列表
+     *
+     * 　请求路径
+     * 　　　　http://api.gmall.com/pms/spu/category/0?t=1668931202224&pageNum=1&pageSize=10&key=
+     * 　　　　　　　　　　　　　　　　/pms/spu/category/{categoryId}
+     * 　参数类型
+     * 　　　　占位符: /{xxx} -> @PathVariable("xxx")
+     * 　　　　普通参数: ?xxx=xxx、form -> @RequestParam(xxx) 、对象直接接收
+     * 　　　　json: @RequestBody 对象
+     * 　　　　cookie: @CookieValue(value = "参数名称", required = "是否必须, 默认是 ture", defaultValue = "指定默认值")
+     * 　　　　请求头信息: @RequestHeader(value = "参数名称", required = "是否必须, 默认是 ture", defaultValue = "指定默认值")
+     *
+     * @param cid
+     * @param paramVo
+     * @return
+     */
+    @GetMapping("/category/{categoryId}")
+    public ResponseVo<PageResultVo> querySpuByCidAndPage(@PathVariable("categoryId") Long cid, PageParamVo paramVo) {
+        PageResultVo pageResultVo = spuService.querySpuByCidAndPage(cid, paramVo);
+
+        return ResponseVo.ok(pageResultVo);
+    }
+
+    /**
      * 列表
      */
     @GetMapping
