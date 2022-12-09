@@ -17,3 +17,11 @@
 ![](https://oss.yiki.tech/oss/202212091053627.png)
 
 ![](https://oss.yiki.tech/oss/202212091053533.png)
+
+## 根据 属性规格分组 id 查询 组以及组下规格参数
+
+![](https://oss.yiki.tech/oss/202212091101958.png)
+
+![](https://oss.yiki.tech/gmall/202211201555698.png)
+
+![](https://oss.yiki.tech/oss/202212091101726.png)
