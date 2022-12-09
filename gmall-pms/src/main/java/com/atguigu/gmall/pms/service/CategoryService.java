@@ -5,6 +5,8 @@ import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * 商品三级分类
  *
@@ -15,5 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface CategoryService extends IService<CategoryEntity> {
 
     PageResultVo queryPage(PageParamVo paramVo);
+
+    List<CategoryEntity> queryCategoriesByPid(Long pid);
 }
 
