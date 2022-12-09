@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,6 +33,31 @@ public class AttrController {
 
     @Autowired
     private AttrService attrService;
+
+    /**
+     * baseCrud: 8. 根据分类 id 以及 type 和 searchType 查询分类下的规格参数
+     *
+     * 　请求路径
+     * 　　　http://api.gmall.com/pms/attr/category/225?type=0
+     *                          /pms/attr/category/{cid}?type=0&searchType=1
+     *
+     * @param cid
+     * @param type
+     * @param searchType
+     * @return
+     */
+    @GetMapping("category/{cid}")
+    @ApiOperation("查询分类下的规格参数")
+    public ResponseVo<List<AttrEntity>> queryAttrsByCidOrTypeOrSearchType(
+            @PathVariable("cid") Long cid, // 路径传参不能为 null
+            // defaultValue 设置默认值, 如果设置默认值可能会对本意产生歧意, required 默认为 true 设置为 false
+            @RequestParam(value = "type", required = false) Integer type,
+            @RequestParam(value = "searchType", required = false) Integer searchType
+    ) {
+        List<AttrEntity> attrEntities = attrService.queryAttrsByCidOrTypeOrSearchType(cid, type, searchType);
+
+        return ResponseVo.ok(attrEntities);
+    }
 
     /**
      * baseCrud: 3. 根据 属性规格分组 id 查询 组以及组下规格参数

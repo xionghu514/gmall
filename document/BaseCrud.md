@@ -59,3 +59,13 @@
 ![](https://oss.yiki.tech/oss/202212091408844.png)
 
 ![](https://oss.yiki.tech/oss/202212091409435.png)
+
+## 根据分类 id 以及 type 和 searchType 查询分类下的规格参数
+
+![](https://oss.yiki.tech/oss/202212091433198.png)
+
+![](https://oss.yiki.tech/oss/202212091433237.png)
+
+![](https://oss.yiki.tech/oss/202212091434520.png)
+
+![](https://oss.yiki.tech/oss/202212091434972.png)
