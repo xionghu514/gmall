@@ -51,3 +51,11 @@
 ![](https://oss.yiki.tech/oss/202212091400917.png)
 
 ![](https://oss.yiki.tech/oss/202212091400863.png)
+
+## 根据分类 id 查询分类下的组及规格参数
+
+![](https://oss.yiki.tech/oss/202212091408398.png)
+
+![](https://oss.yiki.tech/oss/202212091408844.png)
+
+![](https://oss.yiki.tech/oss/202212091409435.png)

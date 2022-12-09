@@ -1,11 +1,12 @@
 package com.atguigu.gmall.pms.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import lombok.Data;
+import java.util.List;
 
 /**
  * 属性分组
@@ -45,4 +46,10 @@ public class AttrGroupEntity implements Serializable {
 	 */
 	private String remark;
 
+	/**
+	 * 扩展字段 不参与 mp 的 sql 语句生成, 默认一个 实体类 所有属性都为 某一个张表的 所有字段
+	 * 		@TableField(exist = false) 该注解表示 此字段不属于 mysql 列
+	 */
+	@TableField(exist = false)
+	private List<AttrEntity> attrEntities;
 }
