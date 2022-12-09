@@ -43,3 +43,11 @@
 ![](https://oss.yiki.tech/oss/202212091358446.png)
 
 ![](https://oss.yiki.tech/oss/202212091358010.png)
+
+## 根据 skuId 查询对应的 sku 库存信息
+
+![](https://oss.yiki.tech/oss/202212091400808.png)
+
+![](https://oss.yiki.tech/oss/202212091400917.png)
+
+![](https://oss.yiki.tech/oss/202212091400863.png)
