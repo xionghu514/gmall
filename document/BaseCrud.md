@@ -35,3 +35,11 @@
 ![](https://oss.yiki.tech/oss/202212091107690.png)
 
 ![](https://oss.yiki.tech/oss/202212091107991.png)
+
+## 根据 spuId 查询 spu 下 所有 sku 信息
+
+![](https://oss.yiki.tech/oss/202212091358262.png)
+
+![](https://oss.yiki.tech/oss/202212091358446.png)
+
+![](https://oss.yiki.tech/oss/202212091358010.png)
