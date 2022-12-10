@@ -5,6 +5,7 @@ import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.sms.entity.SkuBoundsEntity;
 import com.atguigu.gmall.sms.service.SkuBoundsService;
+import com.atguigu.gmall.sms.vo.SkuSaleVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,28 @@ public class SkuBoundsController {
 
     @Autowired
     private SkuBoundsService skuBoundsService;
+
+    /**
+     * feign 请求方式: Get / Post 阉割版的 http 协议, 支持占位符, 支持普通参数, 不支持 form 表单
+     *      少量参数
+     *          占位符: 适用于参数较少时, @PathVariable() 较为麻烦
+     *          普通参数: Feign 是阉割版本的 HTTP 不支持 form 表单 只支持 ? 使用 @RequestParam() 一一接收
+     *       多个参数
+     *          json: 传递多个参数, @RequestBody 接收, 只支持 Post 请求
+     *
+     * 请求参数: 重新封装一个 Vo
+     *      不使用 SkuVo 的原因: 存在很多不需要的字段 sku 的图片列表, 销售属性 传输过程中占用大量网络带宽
+     *
+     * 返回结果集: 不需要返回什么
+     * 请求路径: 保证标识符命名规则规范即可
+     * @return
+     */
+    @PostMapping("sales/save")
+    public ResponseVo saveSales(@RequestBody SkuSaleVo saleVo) {
+        skuBoundsService.saveSales(saleVo);
+
+        return ResponseVo.ok();
+    }
 
     /**
      * 列表
