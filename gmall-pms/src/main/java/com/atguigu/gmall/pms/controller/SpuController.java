@@ -86,6 +86,7 @@ public class SpuController {
     @PostMapping
     @ApiOperation("保存")
     public ResponseVo<Object> save(@RequestBody SpuVo spu){
+        // 大保存方法是通过 代理类调用的 进而 bigSave 方法 事务注解才能生效, 方法前后添加事务代码(回滚 提交)
 		spuService.bigSave(spu);
 
         return ResponseVo.ok();
