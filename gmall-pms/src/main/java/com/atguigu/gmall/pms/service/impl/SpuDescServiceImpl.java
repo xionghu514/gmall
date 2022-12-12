@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -31,7 +30,8 @@ public class SpuDescServiceImpl extends ServiceImpl<SpuDescMapper, SpuDescEntity
         return new PageResultVo(page);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW) // 实验成功, saveSpuDesc 下方出现异常, spuInfo 方法回滚 saveSpuDesc 保存成功
+//    @Transactional(propagation = Propagation.REQUIRES_NEW) // 实验成功, saveSpuDesc 下方出现异常, spuInfo 方法回滚 saveSpuDesc 保存成功
+    @Transactional
     @Override
     public void saveSpuDesc(SpuVo spu, Long spuId) {
         List<String> spuImages = spu.getSpuImages();

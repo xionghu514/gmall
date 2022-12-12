@@ -26,9 +26,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -153,11 +153,23 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
      *          REQUIRED：一个事务，要么成功，要么失败
      *          REQUIRES_NEW：两个不同事务，彼此之间没有关系。一个事务失败了不影响另一个事务
      *
+     * 回滚策略
+     *      默认的回滚策略
+     *          所有的受检异常都不会回滚(编译器可以检查出来, 编译时异常)
+     *          所有的非受检异常都会回滚(编译器不可以检查出来, 运行时异常)
+     *      自定义回滚策略
+     *          rollbackFor                 什么异常会回滚, 指定异常类型
+     *          rollbackForClassName        什么异常不会回滚, 指定异常类的全路径
+     *          noRollbackFor               什么异常不回滚, 指定异常类型
+     *          noRollbackForClassName      什么异常不会回滚, 指定异常类的全路径
+     *
      * @param spu
      */
-    @Transactional(propagation = Propagation.REQUIRED) // 事务注解 默认的 传播行为
+//    @Transactional(propagation = Propagation.REQUIRED) // 事务注解 默认的 传播行为
+//    @Transactional(rollbackFor = Exception.class) // 所有异常都回滚
+    @Transactional(noRollbackFor = ArithmeticException.class, rollbackFor = FileNotFoundException.class) // 自定义回滚策略 1 / 0 不会回滚, 文件找不到回滚
     @Override
-    public void bigSave(SpuVo spu) {
+    public void bigSave(SpuVo spu) throws FileNotFoundException {
         // 1. 保存 spu 相关信息
         // 1.1 保存 spu 表
         Long spuId = saveSpuInfo(spu);
@@ -167,6 +179,8 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         descService.saveSpuDesc(spu, spuId); // 通过代理类调用才会有增强, 进而事物注解才能生效 传播行为才生效
 
         int i = 1 / 0;
+        // spuInfo 与 spuDesc 保存成功, 后面方法不执行
+//        new FileInputStream("xxx"); // 受检异常 默认不会回滚. 抛出该异常 而不是 try catch. try catch, aop 无法监测该异常 事务无法回滚
 
         // 1.3 保存 pms_spu_attr_value 基本属性值表(需要使用批量保存使用 service)
         saveBaseAttr(spu, spuId);

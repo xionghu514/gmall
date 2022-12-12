@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 /**
@@ -85,7 +86,7 @@ public class SpuController {
      */
     @PostMapping
     @ApiOperation("保存")
-    public ResponseVo<Object> save(@RequestBody SpuVo spu){
+    public ResponseVo<Object> save(@RequestBody SpuVo spu) throws FileNotFoundException {
         // 大保存方法是通过 代理类调用的 进而 bigSave 方法 事务注解才能生效, 方法前后添加事务代码(回滚 提交)
 		spuService.bigSave(spu);
 
