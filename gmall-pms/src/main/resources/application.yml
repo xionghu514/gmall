@@ -9,6 +9,9 @@ spring:
       transport:
         dashboard: 192.168.0.101:8080 # sentinel 客户端地址
         port: 8719 # 服务与 dashboard 进行交互的端口
+    alibaba:
+      seata:
+        tx-service-group: gmall_tx_group
   zipkin: # 链路追踪配置
     base-url: http://192.168.0.101:9411 # zipkin 地址
     discovery-client-enabled: false # 是否监控 zipkin 本身的请求

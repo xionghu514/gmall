@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class SkuBoundsServiceImpl extends ServiceImpl<SkuBoundsMapper, SkuBounds
     }
 
     @Override
+    @Transactional // 分支事务 RM
     public void saveSales(SkuSaleVo saleVo) {
 
         // 3.1 保存积分优惠表
