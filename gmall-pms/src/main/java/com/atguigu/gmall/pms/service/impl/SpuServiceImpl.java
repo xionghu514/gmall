@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -167,12 +168,16 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
      *      对于一些事务要求严格的项目 不仅仅写需要添加事务 读也需要添加事物
      *          如果一个方法标记为 readOnly=true 事务, 则代表该方法只能查询，不能增删改。readOnly 默认为 false
      *
+     * 超时事务
+     *      timeout=3：是指第一个sql开始执行到最后一个sql结束执行之间的间隔时间。
+     *      超时时间（timeout）是指数据库超时，不是业务超时
      * @param spu
      */
 //    @Transactional(propagation = Propagation.REQUIRED) // 事务注解 默认的 传播行为
 //    @Transactional(rollbackFor = Exception.class) // 所有异常都回滚
 //    @Transactional(noRollbackFor = ArithmeticException.class, rollbackFor = FileNotFoundException.class) // 自定义回滚策略 1 / 0 不会回滚, 文件找不到回滚
-    @Transactional(readOnly = true) // 只读事务, 该方法只能进行查询 不能做 增删改 操作
+//    @Transactional(readOnly = true) // 只读事务, 该方法只能进行查询 不能做 增删改 操作
+    @Transactional(timeout = 3) // 超时事务
     @Override
     public void bigSave(SpuVo spu) throws FileNotFoundException {
         // 1. 保存 spu 相关信息
@@ -183,9 +188,15 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         // saveSpuDesc(spu, spuId); // 编译时 默认会添加 this 关键字. 实现类自己调用自己的方法没有 通过代理 也就没有增强. 方法在自己类时 通过this 调用没有通过代理类调用, 事务注解没有生效, 传播行为更不可能生效
         descService.saveSpuDesc(spu, spuId); // 通过代理类调用才会有增强, 进而事物注解才能生效 传播行为才生效
 
-        int i = 1 / 0;
+//        int i = 1 / 0;
         // spuInfo 与 spuDesc 保存成功, 后面方法不执行
 //        new FileInputStream("xxx"); // 受检异常 默认不会回滚. 抛出该异常 而不是 try catch. try catch, aop 无法监测该异常 事务无法回滚
+
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // 1.3 保存 pms_spu_attr_value 基本属性值表(需要使用批量保存使用 service)
         saveBaseAttr(spu, spuId);
