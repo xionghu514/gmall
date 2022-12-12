@@ -163,11 +163,16 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
      *          noRollbackFor               什么异常不回滚, 指定异常类型
      *          noRollbackForClassName      什么异常不会回滚, 指定异常类的全路径
      *
+     * 只读事物
+     *      对于一些事务要求严格的项目 不仅仅写需要添加事务 读也需要添加事物
+     *          如果一个方法标记为 readOnly=true 事务, 则代表该方法只能查询，不能增删改。readOnly 默认为 false
+     *
      * @param spu
      */
 //    @Transactional(propagation = Propagation.REQUIRED) // 事务注解 默认的 传播行为
 //    @Transactional(rollbackFor = Exception.class) // 所有异常都回滚
-    @Transactional(noRollbackFor = ArithmeticException.class, rollbackFor = FileNotFoundException.class) // 自定义回滚策略 1 / 0 不会回滚, 文件找不到回滚
+//    @Transactional(noRollbackFor = ArithmeticException.class, rollbackFor = FileNotFoundException.class) // 自定义回滚策略 1 / 0 不会回滚, 文件找不到回滚
+    @Transactional(readOnly = true) // 只读事务, 该方法只能进行查询 不能做 增删改 操作
     @Override
     public void bigSave(SpuVo spu) throws FileNotFoundException {
         // 1. 保存 spu 相关信息
