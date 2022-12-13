@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: search-service # 服务名称
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.0.101:8848 # nacos 配置中心地址信息
