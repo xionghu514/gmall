@@ -68,6 +68,21 @@ public class SpuController {
         return ResponseVo.ok(pageResultVo);
     }
 
+    /**
+     * es 数据导入 提供远程接口, 1. 分批、分页查询 spu
+     *      阉割版的 http 协议, 支持占位符, 支持普通参数, 不支持 form 表单
+     *
+     *      普通参数 ? 只能使用 @requestParam 一一接收
+     * 		     不支持 fome 表单传入对象
+     *
+     *      json: 传递多个参数, @RequestBody 接收, 只支持 Post 请求
+     */
+    @PostMapping("/json")
+    public ResponseVo<List<SpuEntity>> querySpuByPageJson(@RequestBody PageParamVo paramVo) {
+        PageResultVo pageResultVo = spuService.queryPage(paramVo);
+
+        return ResponseVo.ok((List<SpuEntity>) pageResultVo.getList());
+    }
 
     /**
      * 信息

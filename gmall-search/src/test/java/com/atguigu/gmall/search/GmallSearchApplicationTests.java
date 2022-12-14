@@ -1,5 +1,9 @@
 package com.atguigu.gmall.search;
 
+import com.atguigu.gmall.common.bean.PageParamVo;
+import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.search.feign.GmallPmsClient;
 import com.atguigu.gmall.search.pojo.Goods;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +11,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.IndexOperations;
 
+import java.util.List;
+
 @SpringBootTest
 class GmallSearchApplicationTests {
 
     @Autowired
     private ElasticsearchRestTemplate restTemplate;
+
+    @Autowired
+    private GmallPmsClient pmsClient;
 
     @Test
     void contextLoads() {
@@ -42,6 +51,17 @@ class GmallSearchApplicationTests {
             pageNum++; // 此页查询完成 查询下一页
             // TODO 查询当前页 spu 总条数 赋值给 pageSize;
         } while (pageSize == 100);// 当前页没有 100 条记录, 结束循环
+    }
+
+    // es 数据导入 提供远程接口, 1. 分批、分页查询 spu
+    @Test
+    public void test() {
+        ResponseVo<List<SpuEntity>> spuResponseVo = pmsClient.querySpuByPageJson(
+                new PageParamVo(1, 100, null)
+        );
+
+        List<SpuEntity> spuEntities = spuResponseVo.getData();
+        spuEntities.forEach(System.out::println);
     }
 
 }
