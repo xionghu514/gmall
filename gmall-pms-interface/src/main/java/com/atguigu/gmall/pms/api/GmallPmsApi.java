@@ -2,7 +2,10 @@ package com.atguigu.gmall.pms.api;
 
 import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -27,4 +30,8 @@ public interface GmallPmsApi {
      */
     @PostMapping("pms/spu/json")
     public ResponseVo<List<SpuEntity>> querySpuByPageJson(@RequestBody PageParamVo paramVo);
+
+    // es 数据导入 提供远程接口, 2. 根据 spuId 查询 sku
+    @GetMapping("pms/sku/spu/{spuId}")
+    public ResponseVo<List<SkuEntity>> querySkuBySpuId(@PathVariable("spuId") Long spuId);
 }
