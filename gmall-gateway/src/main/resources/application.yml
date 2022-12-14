@@ -27,3 +27,7 @@ spring:
           uri: lb://sms-service # 路由到那里, 路由到服务名对应的服务
           predicates: # 断言
             - Path=/sms/** # 什么样的请求到此路由 进而进入路由该服务. sms 开头的请求 都 路由到 sms-service 服务
+        - id: search-route # 路由唯一标识, 搜索工程路由
+          uri: lb://search-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/search # 什么样的请求到此路由 进而进入路由该服务. search 开头的请求 都 路由到 sms-service 服务
