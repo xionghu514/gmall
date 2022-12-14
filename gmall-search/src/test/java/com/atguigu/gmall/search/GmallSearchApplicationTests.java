@@ -3,6 +3,7 @@ package com.atguigu.gmall.search;
 import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.BrandEntity;
+import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import com.atguigu.gmall.search.feign.GmallPmsClient;
@@ -98,4 +99,12 @@ class GmallSearchApplicationTests {
         System.out.println("brandEntity = " + brandEntity);
     }
 
+    // es 数据导入 提供远程接口, 5. 根据 分类id 查询 分类
+    @Test
+    void test5() {
+        ResponseVo<CategoryEntity> responseVo = pmsClient.queryCategoryById(225L);
+
+        CategoryEntity categoryEntity = responseVo.getData();
+        System.out.println("categoryEntity = " + categoryEntity);
+    }
 }
