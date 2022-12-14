@@ -34,11 +34,11 @@ public class Goods {
 
     // 排序及过滤
     @Field(type = FieldType.Long)
-    private Long sales; // 销量
+    private Long sales = 0L; // 销量, 默认为 0 件
     @Field(type = FieldType.Date, format = DateFormat.date)
     private Date createTime; // 新品
     @Field(type = FieldType.Boolean)
-    private Boolean store; // 是否有货
+    private Boolean store = false; // 是否有货, 默认显示无货
 
     // 过滤条件
     @Field(type = FieldType.Long)
