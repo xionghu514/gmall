@@ -2,6 +2,7 @@ package com.atguigu.gmall.pms.api;
 
 import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,4 +35,9 @@ public interface GmallPmsApi {
     // es 数据导入 提供远程接口, 2. 根据 spuId 查询 sku
     @GetMapping("pms/sku/spu/{spuId}")
     public ResponseVo<List<SkuEntity>> querySkuBySpuId(@PathVariable("spuId") Long spuId);
+
+    // es 数据导入 提供远程接口, 4. 根据 品牌id 查询 品牌
+    @GetMapping("pms/brand/{id}")
+    public ResponseVo<BrandEntity> queryBrandById(@PathVariable("id") Long id);
+
 }

@@ -2,12 +2,13 @@ package com.atguigu.gmall.search;
 
 import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
-import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import com.atguigu.gmall.search.feign.GmallPmsClient;
 import com.atguigu.gmall.search.feign.GmallWmsClient;
 import com.atguigu.gmall.search.pojo.Goods;
+import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -86,6 +87,15 @@ class GmallSearchApplicationTests {
 
         List<WareSkuEntity> wareSkuEntities = wareSkuResponseVo.getData();
         wareSkuEntities.forEach(System.out::println);
+    }
+
+    // es 数据导入 提供远程接口, 4. 根据 品牌id 查询 品牌
+    @Test
+    public void test4() {
+        ResponseVo<BrandEntity> brandEntityResponseVo = pmsClient.queryBrandById(1L);
+
+        BrandEntity brandEntity = brandEntityResponseVo.getData();
+        System.out.println("brandEntity = " + brandEntity);
     }
 
 }
