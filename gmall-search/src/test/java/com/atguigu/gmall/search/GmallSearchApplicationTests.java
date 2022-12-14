@@ -4,7 +4,9 @@ import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import com.atguigu.gmall.search.feign.GmallPmsClient;
+import com.atguigu.gmall.search.feign.GmallWmsClient;
 import com.atguigu.gmall.search.pojo.Goods;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ class GmallSearchApplicationTests {
 
     @Autowired
     private GmallPmsClient pmsClient;
+
+    @Autowired
+    private GmallWmsClient wmsClient;
 
     @Test
     void contextLoads() {
@@ -72,6 +77,15 @@ class GmallSearchApplicationTests {
 
         List<SkuEntity> skuEntities = skuResponseVo.getData();
         skuEntities.forEach(System.out::println);
+    }
+
+    // es 数据导入 提供远程接口, 3. 根据 skuId 查询对应的 sku 库存信息
+    @Test
+    public void test3() {
+        ResponseVo<List<WareSkuEntity>> wareSkuResponseVo = wmsClient.queryWareSkusBySkuId(1L);
+
+        List<WareSkuEntity> wareSkuEntities = wareSkuResponseVo.getData();
+        wareSkuEntities.forEach(System.out::println);
     }
 
 }
