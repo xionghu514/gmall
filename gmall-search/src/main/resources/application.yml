@@ -20,6 +20,8 @@ spring:
   elasticsearch:
     rest:
       uris: http://192.168.0.101:9200
+  jackson:
+    default-property-inclusion: non_null # 默认属性包含, 不包含空字段
 feign: # feign
   sentinel:
     enabled: true # 开启 feign 的 sentinel 功能
