@@ -35,6 +35,24 @@ public class SkuAttrValueController {
     private SkuAttrValueService skuAttrValueService;
 
     /**
+     * es 数据导入 提供远程接口, 6. 查询 销售类型的检索属性和值
+     *      select * from pms_attr where category_id = 225 AND search_type = 1;
+     *      select * from pms_sku_attr_value where sku_id = 13 AND attr_id in (4,5,6,8,9);
+     * @param cid
+     * @param skuId
+     * @return
+     */
+    @GetMapping("search/attr/value/{cid}")
+    public ResponseVo<List<SkuAttrValueEntity>> querySearchAttrValueByCidAndSkuId(
+            @PathVariable("cid") Long cid,
+            @RequestParam("skuId") Long skuId
+    ) {
+        List<SkuAttrValueEntity> skuAttrValueEntities = skuAttrValueService.querySearchAttrValueByCidAndSkuId(cid, skuId);
+
+        return ResponseVo.ok(skuAttrValueEntities);
+    }
+
+    /**
      * 列表
      */
     @GetMapping

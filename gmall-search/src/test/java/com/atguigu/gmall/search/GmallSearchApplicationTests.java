@@ -4,6 +4,7 @@ import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
+import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import com.atguigu.gmall.search.feign.GmallPmsClient;
@@ -106,5 +107,14 @@ class GmallSearchApplicationTests {
 
         CategoryEntity categoryEntity = responseVo.getData();
         System.out.println("categoryEntity = " + categoryEntity);
+    }
+
+    // es 数据导入 提供远程接口, 6. 查询 销售类型的检索属性和值
+    @Test
+    void test6() {
+        ResponseVo<List<SkuAttrValueEntity>> searchAttrValueResponseVo = pmsClient.querySearchAttrValueByCidAndSkuId(225L, 10L);
+
+        List<SkuAttrValueEntity> searchAttrValueResponseVoData = searchAttrValueResponseVo.getData();
+        searchAttrValueResponseVoData.forEach(System.out::println);
     }
 }

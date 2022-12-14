@@ -4,12 +4,14 @@ import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
+import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -45,4 +47,10 @@ public interface GmallPmsApi {
     @GetMapping("pms/category/{id}")
     public ResponseVo<CategoryEntity> queryCategoryById(@PathVariable("id") Long id);
 
+    // es 数据导入 提供远程接口, 6. 查询 销售类型的检索属性和值
+    @GetMapping("pms/skuattrvalue/search/attr/value/{cid}")
+    public ResponseVo<List<SkuAttrValueEntity>> querySearchAttrValueByCidAndSkuId(
+            @PathVariable("cid") Long cid,
+            @RequestParam("skuId") Long skuId
+    );
 }
