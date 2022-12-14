@@ -1,23 +1,22 @@
 package com.atguigu.gmall.pms.controller;
 
-import java.util.List;
-
+import com.atguigu.gmall.common.bean.PageParamVo;
+import com.atguigu.gmall.common.bean.PageResultVo;
+import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
+import com.atguigu.gmall.pms.service.SpuAttrValueService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
-import com.atguigu.gmall.pms.service.SpuAttrValueService;
-import com.atguigu.gmall.common.bean.PageResultVo;
-import com.atguigu.gmall.common.bean.ResponseVo;
-import com.atguigu.gmall.common.bean.PageParamVo;
+import java.util.List;
 
 /**
  * spu属性值
@@ -33,6 +32,22 @@ public class SpuAttrValueController {
 
     @Autowired
     private SpuAttrValueService spuAttrValueService;
+
+    /**
+     * es 数据导入 提供远程接口, 7. 查询 基本类型的检索属性和值
+     *      select * from pms_attr where category_id = 225 AND search_type = 1;
+     *      select * from pms_spu_attr_value where spu_id = 13 AND attr_id in (4,5,6,8,9);
+     * @return
+     */
+    @GetMapping("search/attr/value/{cid}")
+    public ResponseVo<List<SpuAttrValueEntity>> querySearchAttrValueByCidAndSpuId(
+            @PathVariable("cid") Long cid,
+            @RequestParam("spuId") Long spuId
+    ) {
+        List<SpuAttrValueEntity> spuAttrValueEntities = spuAttrValueService.querySearchAttrValueByCidAndSpuId(cid, spuId);
+
+        return ResponseVo.ok(spuAttrValueEntities);
+    }
 
     /**
      * 列表

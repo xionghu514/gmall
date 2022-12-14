@@ -6,6 +6,7 @@ import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
+import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,5 +53,12 @@ public interface GmallPmsApi {
     public ResponseVo<List<SkuAttrValueEntity>> querySearchAttrValueByCidAndSkuId(
             @PathVariable("cid") Long cid,
             @RequestParam("skuId") Long skuId
+    );
+
+    // es 数据导入 提供远程接口, 7. 查询 基本类型的检索属性和值
+    @GetMapping("pms/spuattrvalue/search/attr/value/{cid}")
+    public ResponseVo<List<SpuAttrValueEntity>> querySearchAttrValueByCidAndSpuId(
+            @PathVariable("cid") Long cid,
+            @RequestParam("spuId") Long spuId
     );
 }

@@ -6,6 +6,7 @@ import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
+import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import com.atguigu.gmall.search.feign.GmallPmsClient;
 import com.atguigu.gmall.search.feign.GmallWmsClient;
@@ -115,6 +116,15 @@ class GmallSearchApplicationTests {
         ResponseVo<List<SkuAttrValueEntity>> searchAttrValueResponseVo = pmsClient.querySearchAttrValueByCidAndSkuId(225L, 10L);
 
         List<SkuAttrValueEntity> searchAttrValueResponseVoData = searchAttrValueResponseVo.getData();
+        searchAttrValueResponseVoData.forEach(System.out::println);
+    }
+
+    // es 数据导入 提供远程接口, 7. 查询 基本类型的检索属性和值
+    @Test
+    void test7() {
+        ResponseVo<List<SpuAttrValueEntity>> searchAttrValueResponseVo = pmsClient.querySearchAttrValueByCidAndSpuId(225L, 11L);
+
+        List<SpuAttrValueEntity> searchAttrValueResponseVoData = searchAttrValueResponseVo.getData();
         searchAttrValueResponseVoData.forEach(System.out::println);
     }
 }
