@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,9 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
 
     @Autowired
     private GmallSmsClient smsClient; // 3. 保存 营销 相关信息
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageResultVo queryPage(PageParamVo paramVo) {
@@ -205,6 +209,15 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
 
         // 测试全局事务
 //        int i = 1 / 0;
+
+        /**
+         * 应该在 serviceImpl 保存方法末尾 方法结束之前发送消息, 归为一个事务. 做到要成功都成功, 要失败都失败. 不能存在 商品保存不成功 消息已发送. 或者 商品保存成功 消息没有发送
+         *
+         * 交换机: 第一位应该取模块名, 可以方便寻找到自己的交换机. 第二位应该设置为操作信息 操作 SPU, 第三位以 EXCHANGE 结尾
+         * rk: 指定内容 单品新增, 更新时应该还有一个 item.update, 删除时应该还有一个 item.delete
+         * 消息内容: 对商品的增删改时其它服务可能需要新的商品数据, 但是如果消息内容中包含全部商品信息, 数据量太大, 而且并不是每个服务都需要全部的信息。因此我们 只发送商品id, 其它服务可以根据id查询自己需要的信息
+         */
+        rabbitTemplate.convertAndSend("PMS_SPU_EXCHANGE", "item.insert", spuId); // shift + command + u 将选中字母变成大写
     }
 
     private void saveSkuInfo(SpuVo spu, Long spuId) {

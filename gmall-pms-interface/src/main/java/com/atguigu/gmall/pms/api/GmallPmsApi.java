@@ -36,6 +36,10 @@ public interface GmallPmsApi {
     @PostMapping("pms/spu/json")
     public ResponseVo<List<SpuEntity>> querySpuByPageJson(@RequestBody PageParamVo paramVo);
 
+    // es 数据同步, 根据 spuId 查询 spu
+    @GetMapping("pms/spu/{id}")
+    public ResponseVo<SpuEntity> querySpuById(@PathVariable("id") Long id);
+
     // es 数据导入 提供远程接口, 2. 根据 spuId 查询 sku
     @GetMapping("pms/sku/spu/{spuId}")
     public ResponseVo<List<SkuEntity>> querySkuBySpuId(@PathVariable("spuId") Long spuId);
