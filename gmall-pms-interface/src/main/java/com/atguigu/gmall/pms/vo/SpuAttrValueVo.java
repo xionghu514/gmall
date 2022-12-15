@@ -30,7 +30,7 @@ public class SpuAttrValueVo extends SpuAttrValueEntity {
     public void setValueSelected(List<String> valueSelected) {
 
         // 如果接受的集合为空, 则不设置
-        if (!CollectionUtils.isEmpty(valueSelected))
+        if (CollectionUtils.isEmpty(valueSelected))
             return;
 
         // 将接受的集合根据 "," 分割为字符串 赋值给 AttrValue 属性
