@@ -79,3 +79,45 @@ cd /usr/local/nginx/sbin
         }
     }
 ```
+
+## 一些常见问题
+
+### 502 Bad Gateway
+
+> 请求到达nginx 未到达网关
+
+![](https://oss.yiki.tech/oss/202212161114488.png)
+
+### 404
+
+> 请求到达nginx并转发给网关, 网关没有找到服务或者对应的方法导致
+
+![](https://oss.yiki.tech/oss/202212161114735.png)
+
+#### 网关根据域名路由注意
+
+> 域名不带路径访问首先会解析成 ip 地址访问 nginx, nginx 把请求转发给网关. nginx 是通过 ip:port 转发给网关.
+>
+> 网关无法拿到域名, 也就进入不了对应的路由进而无法到达 对应的服务. 
+
+![](https://oss.yiki.tech/oss/202212161114788.png)
+
+![](https://oss.yiki.tech/oss/202212161114708.png)
+
+![](https://oss.yiki.tech/gmall/202211232132960.png)
+
+> 解决: 请求到达 nginx, nginx 是可以通过 host 头信息拿到域名的. nginx 转发时 头信息默认是没有携带的.
+>
+> 所以在 server_name 下 location 上添加 proxy_set_header Host $host; 代理设置头信息, 反向代理时把头信息一并携带过去. 把 host 通过 Host 头携带过去.
+>
+> 网关可以获取域名就可以正常路由到相应的服务了
+
+![](https://oss.yiki.tech/oss/202212161114770.png)
+
+![](https://oss.yiki.tech/oss/202212161118058.png)
+
+### 无法访问此网站
+
+> nginx 不存在
+
+![](https://oss.yiki.tech/oss/202212161117286.png)
