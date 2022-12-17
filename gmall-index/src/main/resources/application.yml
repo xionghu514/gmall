@@ -19,6 +19,9 @@ spring:
       probability: 1 # 采集率, 默认是 百分之10 生产时使用, 开发应该设置为 1 采集全部请求
   thymeleaf:
     cache: false
+  redis:
+    host: 192.168.0.101
+    port: 6379
 feign: # feign
   sentinel:
     enabled: true # 开启 feign 的 sentinel 功能
