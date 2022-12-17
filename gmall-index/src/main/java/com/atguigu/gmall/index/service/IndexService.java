@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,9 +62,14 @@ public class IndexService {
 
         if (CollectionUtils.isNotEmpty(categoryEntities)) {
             // 正常数据放入缓存 90 天
+
+            /**
+             * 缓存雪崩: 由于缓存时间一样, 导致缓存同时失效, 此时大量请求访问这些数据, 请求就会直达数据库, 导致服务器宕机
+             * 　    解决方案: 给缓存时间添加随机值 90 + new Random().nextInt(10)
+             */
             redisTemplate.opsForValue().set(
                     KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
-                    90, TimeUnit.DAYS // 缓存时间 90 天
+                    90 + new Random().nextInt(10), TimeUnit.DAYS // 缓存时间 90 天
             );
         } else {
             /**
