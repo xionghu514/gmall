@@ -1,6 +1,7 @@
 package com.atguigu.gmall.index.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.index.feign.GmallPmsClient;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description:
@@ -57,10 +59,23 @@ public class IndexService {
         ResponseVo<List<CategoryEntity>> categoryResponseVo = pmsClient.queryLevel23CategoriesByPid(pid);
         List<CategoryEntity> categoryEntities = categoryResponseVo.getData();
 
-        redisTemplate.opsForValue().set(
-                // key, value
-                KEY_PREFIX + pid, JSON.toJSONString(categoryEntities) // 将 Java 对象转换换为 JSON 对象
-        );
+        if (CollectionUtils.isNotEmpty(categoryEntities)) {
+            // 正常数据放入缓存 90 天
+            redisTemplate.opsForValue().set(
+                    KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
+                    90, TimeUnit.DAYS // 缓存时间 90 天
+            );
+        } else {
+            /**
+             * 缓存穿透(数据为空): 大量请求访问不存在的数据, 由于数据不存在, redis 中可能没有, 此时大量请求没有到达数据库, 导致服务器宕机
+             * 　    基础解决方案: 即使为 null 也缓存, 缓存时间一般不超过 5 分钟
+             *       依然存在待解决的问题:  如果每次访问不存在且不重复的数据即使缓存为null 的值 请求依然会直达数据库 应该使用 布隆过滤器
+             */
+            redisTemplate.opsForValue().set(
+                    KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
+                    5, TimeUnit.MINUTES // 缓存时间 5 分钟
+            );
+        }
 
         return categoryEntities;
     }
