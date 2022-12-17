@@ -56,6 +56,10 @@ public interface GmallPmsApi {
     @GetMapping("pms/category/parent/{parentId}")
     public ResponseVo<List<CategoryEntity>> queryCategoriesByPid(@PathVariable("parentId") Long pid);
 
+    // index 根据 pid 查询 二级分类以及二级分类的子分类
+    @GetMapping("pms/category/level23/{pid}")
+    public ResponseVo<List<CategoryEntity>> queryLevel23CategoriesByPid(@PathVariable("pid") Long pid);
+
     // es 数据导入 提供远程接口, 6. 查询 销售类型的检索属性和值
     @GetMapping("pms/skuattrvalue/search/attr/value/{cid}")
     public ResponseVo<List<SkuAttrValueEntity>> querySearchAttrValueByCidAndSkuId(

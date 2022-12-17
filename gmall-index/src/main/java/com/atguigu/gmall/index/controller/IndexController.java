@@ -1,11 +1,14 @@
 package com.atguigu.gmall.index.controller;
 
+import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.index.service.IndexService;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -37,5 +40,25 @@ public class IndexController {
         // TODO: 加载广告
 
         return "index";
+    }
+
+    /**
+     * 根据 一级分类 id 查询 级分类以及二级分类下的三级分类
+     *      1. 在网关中新增一条异步请求的路由
+     *      2. 在 CategoryEntity 扩展一个字段  List<CategoryEntity> subs; 二级分类下的三级分类填充
+     *
+     * 请求路径
+     *      http://api.gmall.com/index/cates/6
+     *                          /index/cates/{pid}
+     *
+     * @param pid
+     * @return
+     */
+    @GetMapping("/index/cates/{pid}")
+    @ResponseBody // 因为我们需要响应 json 类型的数据, @Controller 会认为响应结果是视图名称. 所以 需要添加 @ResponseBody 注解
+    public ResponseVo<List<CategoryEntity>> queryLvl23CategoriesByPid(@PathVariable("pid") Long pid) {
+        List<CategoryEntity> categoryEntityList = indexService.queryLvl23CategoriesByPid(pid);
+
+        return ResponseVo.ok(categoryEntityList);
     }
 }

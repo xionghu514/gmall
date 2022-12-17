@@ -1,5 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.atguigu.gmall.pms.mapper.CategoryMapper">
+    <resultMap id="categoryMap" type="com.atguigu.gmall.pms.entity.CategoryEntity" autoMapping="true">
+        <!-- id 表示 主键映射 列名 column, 字段名 property-->
+        <id column="id" property="id"/>
+        <!--
+            select 嵌套查询, column 指的是嵌套查询条件. 在映射该字段时 会将查询出来对象的 id 作为查询条件 再次调用 queryCategoriesByPid 方法
+                相当于接口调用时会 经过 queryCategoriesByPid 方法查询出 一级分类的二级分类.在映射 subs 时会将 二级类的 id 做为查询条件 再次调用 queryCategoriesByPid 方法, 将三级分类的映射到 subs 中
+        -->
+        <collection property="subs" javaType="List" ofType="com.atguigu.gmall.pms.entity.CategoryEntity" select="queryCategoriesByPid" column="id">
+        </collection>
+    </resultMap>
 
+    <select id="queryCategoriesByPid" resultMap="categoryMap">
+        <!-- 查询 子分类 -->
+        select *
+        from pms_category
+        where parent_id = #{pid}
+    </select>
+
+    <!--    <resultMap id="categoryMap" type="CategoryEntity" autoMapping="true">    -->
+    <!--        &lt;!&ndash; autoMapping="true" 自动映射 &ndash;&gt;        -->
+    <!--        &lt;!&ndash; id 表示 主键映射 列名 column, 字段名 property&ndash;&gt;        -->
+    <!--        <id column="id" property="id"/>        -->
+    <!--        &lt;!&ndash; association 表示 映射对象, 一对一关系. 列名 column, 字段名 property &ndash;&gt;        -->
+    <!--        &lt;!&ndash;        <association column="" property=""/>        &ndash;&gt;        -->
+    <!--        &lt;!&ndash; collection 表示 映射集合, 一对多关系. javaType 映射集合类型可以省略, ofType 映射集合中的泛型 &ndash;&gt;        -->
+    <!--        <collection property="subs" javaType="List" ofType="CategoryEntity">        -->
+    <!--            &lt;!&ndash; 如果采用这种写法, 我们自关联表中为了映射就要在 select 投影时 给 t2 表一一取别名在 result 中 一一映射较为麻烦 &ndash;&gt;            -->
+    <!--            &lt;!&ndash;            -->
+    <!--                     SELECT t1.*, t2.id t2_id, t2.name t2_name                     -->
+    <!--                     FROM pms_category t1                     -->
+    <!--                     JOIN pms_category t2                     -->
+    <!--                     ON t1.id = t2.parent_id                     -->
+    <!--                     WHERE t1.parent_id = #{pid}                     -->
+    <!--             &ndash;&gt;             -->
+    <!--            <id column="t2_id" property="id"/>            -->
+    <!-- &lt;!&ndash;  result配置主键外其他列  &ndash;&gt; -->
+    <!--            <result column="t2_name" property="name"/>            -->
+    <!--        </collection>        -->
+    <!--    </resultMap>    -->
+
+    <!--    <select id="queryCategoriesByPid" resultMap="categoryMap">    -->
+    <!--        SELECT t1.*, t2.id t2_id        -->
+    <!--        FROM pms_category t1        -->
+    <!--        JOIN pms_category t2        -->
+    <!--        ON t1.id = t2.parent_id        -->
+    <!--        WHERE t1.parent_id = #{pid}        -->
+    <!--    </select>    -->
 </mapper>

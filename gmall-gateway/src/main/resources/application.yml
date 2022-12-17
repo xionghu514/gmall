@@ -36,3 +36,7 @@ spring:
           predicates: # 断言
             - Host=gmall.com, www.gmall.com # 因为首页服务可以没有路径, 再使用 路径 Path 进行路由就不合适了, 应该使用域名进行路由
 #            - Path=/index/** # 如果写在一个路由里面, 他们的关系是and关系. 同时满足才可以
+        - id: index-route2 # 首页的异步请求路由
+          uri: lb://index-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/index/** # 什么样的请求到此路由 进而进入路由该服务. index 开头的请求 都 路由到 index-service 服务

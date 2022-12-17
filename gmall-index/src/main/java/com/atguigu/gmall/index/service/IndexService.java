@@ -26,4 +26,11 @@ public class IndexService {
 
         return categoryResponseVo.getData();
     }
+
+    public List<CategoryEntity> queryLvl23CategoriesByPid(Long pid) {
+        ResponseVo<List<CategoryEntity>> categoryResponseVo = pmsClient.queryLevel23CategoriesByPid(pid);
+        List<CategoryEntity> categoryEntities = categoryResponseVo.getData();
+
+        return categoryEntities;
+    }
 }

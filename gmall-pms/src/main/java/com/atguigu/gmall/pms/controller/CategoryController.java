@@ -53,6 +53,18 @@ public class CategoryController {
         return ResponseVo.ok(categoryEntities);
     }
 
+    /**
+     * 根据 一级分类 id 查询 级分类以及二级分类下的三级分类
+     * @param pid
+     * @return
+     */
+    @GetMapping("/level23/{pid}")
+    public ResponseVo<List<CategoryEntity>> queryLevel23CategoriesByPid(@PathVariable("pid") Long pid) {
+        List<CategoryEntity> categoryEntities = categoryService.queryLevel23CategoriesByPid(pid);
+
+        return ResponseVo.ok(categoryEntities);
+    }
+
 
     /**
      * 列表
