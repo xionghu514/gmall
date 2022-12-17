@@ -61,4 +61,15 @@ public class IndexController {
 
         return ResponseVo.ok(categoryEntityList);
     }
+
+    /**
+     * 测试本地锁 & 分布式锁
+     * @return
+     */
+    @GetMapping("index/test/lock")
+    @ResponseBody
+    public ResponseVo testLock() {
+        indexService.testLock();
+        return ResponseVo.ok();
+    }
 }
