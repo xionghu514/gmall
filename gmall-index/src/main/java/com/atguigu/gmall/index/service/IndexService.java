@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -106,14 +107,20 @@ public class IndexService {
      *          1. 死锁
      *              一个线程获取到锁 还没有执行到释放锁操作 服务器宕机. 其他线程获取不到锁 即使 服务器重启 这把锁也无法被释放掉. 其他线程一直执行递归操作 最终导致服务器资源耗尽而宕机
      *                  添加过期时间在 set(获取锁) 时去设置过期时间
+     *          2. 防误删
+     *              如果业务逻辑的执行时间是7s, A 服务获取锁 业务没有执行完 锁3秒被自动释放, B 服务获取到锁 业务没有执行完 锁3秒被自动释放, C 服务获取锁执行业务逻辑.
+     *              A 服务业务执行完成 释放锁, 这时释放的是 C 的锁. 导致 C 业务只执行了 1s 就被别人释放. 最终等于没有锁(可能会释放其他服务器的锁)
+     *                  setnx 获取锁时, 设置一个指定的唯一值(例如：uuid); 释放前获取这个值, 判断是否自己的锁(注意删除缺乏原子性)
      */
     public synchronized void testLock() {
+
+        String uuid = UUID.randomUUID().toString();
 
         /**
          * setIfAbsent 类似与 setNx 当 key 不存在即设置成功 否 则 失败
          *      分布式锁本质就是对 key 的争抢, 谁先设置成功谁就先获取锁
          */
-        Boolean flag = redisTemplate.opsForValue().setIfAbsent("lock", "lock", 3, TimeUnit.SECONDS); // 解决死锁 添加过期时间在 set(获取锁) 时去设置过期时间
+        Boolean flag = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 3, TimeUnit.SECONDS); // 解决死锁 添加过期时间在 set(获取锁) 时去设置过期时间
 
         if (!flag) {
             try {
@@ -141,8 +148,10 @@ public class IndexService {
             // 把 redis 中的 num 值 +1
             redisTemplate.opsForValue().set("number", String.valueOf(++num));
 
-            // 释放锁
-            redisTemplate.delete("lock");
+            if (StringUtils.equals(redisTemplate.opsForValue().get("lock"), uuid)) { // 解锁时判断是否是自己的锁
+                // 释放锁
+                redisTemplate.delete("lock");
+            }
         }
     }
 }
