@@ -101,6 +101,11 @@ public class IndexService {
      *
      * 基于 redis 实现分布式锁。借助于 setnx 指令 当 key 不存在即设置成功返回 1 当 key 存在即设置失败返回 0(加锁 解锁 重试)
      *      分布式锁特征: 独占排他互斥使用
+     *
+     *      存在的问题
+     *          1. 死锁
+     *              一个线程获取到锁 还没有执行到释放锁操作 服务器宕机. 其他线程获取不到锁 即使 服务器重启 这把锁也无法被释放掉. 其他线程一直执行递归操作 最终导致服务器资源耗尽而宕机
+     *                  添加过期时间在 set(获取锁) 时去设置过期时间
      */
     public synchronized void testLock() {
 
@@ -108,7 +113,7 @@ public class IndexService {
          * setIfAbsent 类似与 setNx 当 key 不存在即设置成功 否 则 失败
          *      分布式锁本质就是对 key 的争抢, 谁先设置成功谁就先获取锁
          */
-        Boolean flag = redisTemplate.opsForValue().setIfAbsent("lock", "lock");
+        Boolean flag = redisTemplate.opsForValue().setIfAbsent("lock", "lock", 3, TimeUnit.SECONDS); // 解决死锁 添加过期时间在 set(获取锁) 时去设置过期时间
 
         if (!flag) {
             try {
@@ -120,6 +125,10 @@ public class IndexService {
                 e.printStackTrace();
             }
         } else { // 避免每重试一次多加一次
+
+            // 添加过期时间 （缺乏原子性：如果在 setnx 和 expire 之间出现异常，锁也无法释放)
+//            redisTemplate.expire("lock", 3, TimeUnit.SECONDS);
+
             // 查询 redis 中的 num 值
             String number = redisTemplate.opsForValue().get("number");
 
