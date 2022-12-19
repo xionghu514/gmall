@@ -8,8 +8,10 @@ import com.atguigu.gmall.pms.entity.CategoryEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -111,6 +113,20 @@ public class IndexService {
      *              如果业务逻辑的执行时间是7s, A 服务获取锁 业务没有执行完 锁3秒被自动释放, B 服务获取到锁 业务没有执行完 锁3秒被自动释放, C 服务获取锁执行业务逻辑.
      *              A 服务业务执行完成 释放锁, 这时释放的是 C 的锁. 导致 C 业务只执行了 1s 就被别人释放. 最终等于没有锁(可能会释放其他服务器的锁)
      *                  setnx 获取锁时, 设置一个指定的唯一值(例如：uuid); 释放前获取这个值, 判断是否自己的锁(注意删除缺乏原子性)
+     *          3. 保证删除的原子性
+     *              A 服务执行删除时 查询到 lock 值确实与 uuid 相等. A 服务删除前 lock 刚好过期时间已到 被 redis 释放. B 服务获取了锁 A 服务把 B 服务的锁释放 最终等于没有锁
+     *                  判断与删除间也要保证原子性, 使用 lua 脚本保证删除的原子性
+     *                      在 redis 中对lua 脚本提供了主动支持: 打印的不是 lua 脚本的 print 而是 lua 脚本的返回值
+     *                          eval script numkeys key [key ...] arg [arg ...]
+     *                              eval: 指令名称
+     *                              script: lua 脚本字符串
+     *                              numkeys: key 列表的元素数量. 必须参数
+     *                              key: 传递的 key 列表. keys[index] 下标从 1 开始的
+     *                              arg: 传递的 arg 列表. 同上
+     *                          变量
+     *                              全局变量: a = 5 redis 中的 lua 脚本不支持全局变量
+     *                              局部变量: local a = 5
+     *                      redis 给 lua 脚本提供了一个类库: redis.call()
      */
     public synchronized void testLock() {
 
@@ -148,10 +164,20 @@ public class IndexService {
             // 把 redis 中的 num 值 +1
             redisTemplate.opsForValue().set("number", String.valueOf(++num));
 
-            if (StringUtils.equals(redisTemplate.opsForValue().get("lock"), uuid)) { // 解锁时判断是否是自己的锁
-                // 释放锁
-                redisTemplate.delete("lock");
-            }
+            // 判断 redis 中 lock 值是否跟当前 uuid 一致, 如果一致则执行 del 指令
+            String script = "if redis.call('get', KEYS[1]) == ARGV[1] " +
+                    "then " +
+                    "   return redis.call('del', KEYS[1])" +
+                    "else " +
+                    "   return 0 " +
+                    "end";
+
+            redisTemplate.execute(new DefaultRedisScript<>(script, Boolean.class), Arrays.asList("lock"), uuid);
+
+//            if (StringUtils.equals(redisTemplate.opsForValue().get("lock"), uuid)) { // 解锁时判断是否是自己的锁
+//                // 释放锁
+//                redisTemplate.delete("lock");
+//            }
         }
     }
 }
