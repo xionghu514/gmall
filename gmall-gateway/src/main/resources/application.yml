@@ -40,3 +40,7 @@ spring:
           uri: lb://index-service # 路由到那里, 路由到服务名对应的服务
           predicates: # 断言
             - Path=/index/** # 什么样的请求到此路由 进而进入路由该服务. index 开头的请求 都 路由到 index-service 服务
+        - id: item-route # 路由唯一标识, 商品详情页工程路由
+          uri: lb://item-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Host=item.gmall.com # 域名进行路由
