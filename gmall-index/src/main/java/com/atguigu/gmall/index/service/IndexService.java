@@ -129,6 +129,54 @@ public class IndexService {
      *                              全局变量: a = 5 redis 中的 lua 脚本不支持全局变量
      *                              局部变量: local a = 5
      *                      redis 给 lua 脚本提供了一个类库: redis.call()
+     *          4. 可重入 hash Map<lockName, Map<uuid, 重入次数>>
+     *              可重入加锁
+     *                  1. 判断锁是否存在 (exists), 如果不存在 (0) 则直接获取锁 (hset)
+     *                  2. 判断是否是自己的锁 (hexists), 如果是 (1) 则重入 (hinrby)
+     *                  3. 否则获取锁失败 直接返回 (0) false
+     *
+     *                  if(redis.call('exists', 'lock') == 0 // 没有人占用该锁
+     *                  then
+     *                      // hset 锁名称 uuid 可重入次数
+     *                      redis.call('hset', 'lock', uuid, 1) // 直接获取锁
+     *                      // 设置过期时间
+     *                      redis.call('expire', 'lock', 30)
+     *                      return 1
+     *                   elseif redis.call('hexists', 'lock', uuid) == 1 // 锁存在 是自己的锁
+     *                   then
+     *                      // 重入
+     *                      redis.call('hincrby', 'lock', uuid, 1)
+     *                      // 重制过期时间
+     *                      redis.call('expire', 'lock', 30)
+     *                      return 1
+     *                   else
+     *                      return 0
+     *                   end
+     *
+     *                  // 简化
+     *                  if (redis.call('exists', KEYS[1]) == 0 or redis.call('hexists', KEYS[1], ARGV[1]) == 1)
+     *                  then
+     *                      redis.call('hincrby', KEYS[1], ARGV[1], 1);
+     *                      redis.call('expire', KEYS[1], ARGV[2]);
+     *                      return 1;
+     *                  else
+     * 	                    return 0;
+     *                  end
+     *
+     *              可重入解锁
+     *                  1. 判断自己的锁是否存在 (hexists), 如果不存在 (0), 则返回 nil
+     *                  2. 如果自己的锁存在, 则 直接减 1(hincrby -1), 并判断减 1 后的值是否为 0, 为 0 则直接释放锁(del) 返回 1
+     *                  3. 直接返回 0
+     *
+     *                  if redis.call('hexists', lock, uuid) == 0
+     *                  then
+     *                      return nil
+     *                  elseif redis.call('hincrby', lock, uuid, -1) == 0
+     *                  then
+     *                      return redis.call('del', lock)
+     *                  else
+     *                      return 0
+     *                  end
      */
     public synchronized void testLock() {
 
