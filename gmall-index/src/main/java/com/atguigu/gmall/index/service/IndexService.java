@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.index.feign.GmallPmsClient;
+import com.atguigu.gmall.index.utils.DistributedLock;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class IndexService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private DistributedLock distributedLock;
 
     /**
      * 模块名称作为第一位 找到团队的缓存
@@ -179,6 +183,26 @@ public class IndexService {
      *                  end
      */
     public synchronized void testLock() {
+        String uuid = UUID.randomUUID().toString();
+        // 加锁
+        Boolean lock = distributedLock.tryLock("lock", uuid, 30);
+
+        if (lock) {
+            String number = redisTemplate.opsForValue().get("number");
+            if (StringUtils.isBlank(number)) {
+                redisTemplate.opsForValue().set("number", "1");
+            }
+            int num = Integer.parseInt(number);
+            redisTemplate.opsForValue().set("number", String.valueOf(++num));
+
+            // 可重入测试
+            testSubLock2(uuid);
+
+            distributedLock.unLock("lock", uuid);
+        }
+    }
+
+    public synchronized void testLock2() {
 
         String uuid = UUID.randomUUID().toString();
 
@@ -231,6 +255,12 @@ public class IndexService {
 //                redisTemplate.delete("lock");
 //            }
         }
+    }
+
+    public void testSubLock2(String uuid) {
+        distributedLock.tryLock("lock", uuid, 30);
+        System.out.println("-----------------");
+        distributedLock.unLock("lock", uuid);
     }
 
     public void testSubLock() {
