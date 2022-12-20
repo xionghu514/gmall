@@ -181,7 +181,8 @@ public class IndexService {
      *                  else
      *                      return 0
      *                  end
-     *          自动续期: 定时任务 + lua 脚本
+     *
+     *          5. 自动续期: 定时任务 + lua 脚本
      *              A线程超时时间设为10s(为了解决死锁问题), 但代码执行时间可能需要30s, 然后 redis 服务端 10s 后将锁删除
      *              此时, B线程恰好申请锁, redis 服务端不存在该锁, 可以申请, 也执行了代码
      *              那么问题来了, A、B线程都同时获取到锁并执行业务逻辑, 这与分布式锁最基本的性质相违背：在任意一个时刻，只有一个客户端持有锁（即独享排他）
@@ -195,6 +196,11 @@ public class IndexService {
      *                  return 0
      *              end
      *
+     *          6. 单点故障 集群(主从): redLock 算法解决
+     *              1. 客户端程序从主中获取到锁
+     *              2. 从还没有来得及同步数据, 主挂了
+     *              3. 从升级为新主
+     *              4. 其他客户端程序从新主中获取到锁. 导致锁机制失效
      */
     public synchronized void testLock() {
         String uuid = UUID.randomUUID().toString();
