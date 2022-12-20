@@ -3,6 +3,7 @@ package com.atguigu.gmall.index.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.index.annotation.GmallCache;
 import com.atguigu.gmall.index.feign.GmallPmsClient;
 import com.atguigu.gmall.index.utils.DistributedLock;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
@@ -57,7 +58,14 @@ public class IndexService {
     }
 
     // 一般 自定义前缀 + 请求参数作为 key, 返回结果集作为 value 放入缓存
+    @GmallCache(prefix = KEY_PREFIX, timeout = 129600, random = 14400, lock = LOCK_PREFIX)
     public List<CategoryEntity> queryLvl23CategoriesByPid(Long pid) {
+        ResponseVo<List<CategoryEntity>> categoryResponseVo = pmsClient.queryLevel23CategoriesByPid(pid);
+        return categoryResponseVo.getData();
+    }
+
+    // 一般 自定义前缀 + 请求参数作为 key, 返回结果集作为 value 放入缓存
+    public List<CategoryEntity> queryLvl23CategoriesByPid2(Long pid) {
         // 1. 先查询缓存, 如果缓存命中则返回
         String json = redisTemplate.opsForValue().get(
                 // key, value
