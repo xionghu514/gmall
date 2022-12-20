@@ -7,6 +7,8 @@ import com.atguigu.gmall.index.feign.GmallPmsClient;
 import com.atguigu.gmall.index.utils.DistributedLock;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -35,6 +37,9 @@ public class IndexService {
 
     @Autowired
     private DistributedLock distributedLock;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 模块名称作为第一位 找到团队的缓存
@@ -202,7 +207,24 @@ public class IndexService {
      *              3. 从升级为新主
      *              4. 其他客户端程序从新主中获取到锁. 导致锁机制失效
      */
-    public synchronized void testLock() {
+    public  void testLock() {
+        RLock lock = this.redissonClient.getLock("lock"); // 只要锁的名称相同就是同一把锁
+        lock.lock(); // 加锁
+
+        try {
+            String number = redisTemplate.opsForValue().get("number");
+            if (StringUtils.isBlank(number)) {
+                redisTemplate.opsForValue().set("number", "1");
+            }
+            int num = Integer.parseInt(number);
+            redisTemplate.opsForValue().set("number", String.valueOf(++num));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+
+    public void testLock3() {
         String uuid = UUID.randomUUID().toString();
         // 加锁
         Boolean lock = distributedLock.tryLock("lock", uuid, 30);
@@ -229,7 +251,7 @@ public class IndexService {
         }
     }
 
-    public synchronized void testLock2() {
+    public void testLock2() {
 
         String uuid = UUID.randomUUID().toString();
 
