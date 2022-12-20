@@ -181,6 +181,20 @@ public class IndexService {
      *                  else
      *                      return 0
      *                  end
+     *          自动续期: 定时任务 + lua 脚本
+     *              A线程超时时间设为10s(为了解决死锁问题), 但代码执行时间可能需要30s, 然后 redis 服务端 10s 后将锁删除
+     *              此时, B线程恰好申请锁, redis 服务端不存在该锁, 可以申请, 也执行了代码
+     *              那么问题来了, A、B线程都同时获取到锁并执行业务逻辑, 这与分布式锁最基本的性质相违背：在任意一个时刻，只有一个客户端持有锁（即独享排他）
+     *
+     *              判断是否是自己的锁, 是 则重制过期时间
+     *
+     *              if redis.call('hexists', lock, uuid) == 1
+     *              then
+     *                  return redis.call('expire', lock, 30)
+     *              else
+     *                  return 0
+     *              end
+     *
      */
     public synchronized void testLock() {
         String uuid = UUID.randomUUID().toString();
@@ -196,7 +210,14 @@ public class IndexService {
             redisTemplate.opsForValue().set("number", String.valueOf(++num));
 
             // 可重入测试
-            testSubLock2(uuid);
+//            testSubLock2(uuid);
+
+            // 自动续期测试
+            try {
+                TimeUnit.SECONDS.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             distributedLock.unLock("lock", uuid);
         }
