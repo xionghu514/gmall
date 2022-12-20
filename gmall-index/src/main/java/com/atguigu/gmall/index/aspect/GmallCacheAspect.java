@@ -7,6 +7,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +34,9 @@ public class GmallCacheAspect {
     @Autowired
     private RedissonClient redissonClient;
 
+    @Autowired
+    private RBloomFilter bloomFilter;
+
     /**
      * joinPoint.getArgs(); 获取方法参数
      * joinPoint.getTarget().getClass(); 获取目标类
@@ -43,51 +46,55 @@ public class GmallCacheAspect {
      */
     @Around("@annotation(com.atguigu.gmall.index.annotation.GmallCache)")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-
-        // 获取切点方法的签名
-        MethodSignature signature = (MethodSignature)joinPoint.getSignature();
-        // 获取方法对象
+        // 方法的签名
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        // 方法对象
         Method method = signature.getMethod();
-        // 获取方法上指定注解的对象
-        GmallCache annotation = method.getAnnotation(GmallCache.class);
-        // 获取注解中的前缀
-        String prefix = annotation.prefix();
-        // 获取方法的参数
+        // 获取方法上的GmallCache注解对象
+        GmallCache gmallCache = method.getAnnotation(GmallCache.class);
+
+        // 方法形参
         Object[] args = joinPoint.getArgs();
-        String param = Arrays.asList(args).toString();
-        // 获取方法的返回值类型
-        Class<?> returnType = method.getReturnType();
+        // 获取缓存前缀
+        String prefix = gmallCache.prefix();
+        // 缓存的key
+        String argString = StringUtils.join(args, ",");
+        String key = prefix + argString;
 
-        // 拦截前代码块：判断缓存中有没有
-        String json = this.redisTemplate.opsForValue().get(prefix + param);
-        // 判断缓存中的数据是否为空
+        // 通过布隆过滤器判断数据是否存在，不存在则直接返回空
+        if (!bloomFilter.contains(key)){
+            return null;
+        }
+
+        // 1.先查询缓存，如果缓存中命中则直接返回
+        String json = this.redisTemplate.opsForValue().get(key);
         if (StringUtils.isNotBlank(json)){
-            return JSON.parseObject(json, returnType);
+            return JSON.parseObject(json, signature.getReturnType());
         }
 
-        // 没有，加分布式锁
-        String lock = annotation.lock();
-        RLock rLock = this.redissonClient.getLock(lock + param);
-        rLock.lock();
+        // 2.为了防止缓存击穿，添加分布式锁
+        String lock = gmallCache.lock() + argString;
+        RLock fairLock = this.redissonClient.getFairLock(lock);
+        fairLock.lock();
 
-        // 判断缓存中有没有，有直接返回(加锁的过程中，别的请求可能已经把数据放入缓存)
-        String json2 = this.redisTemplate.opsForValue().get(prefix + param);
-        // 判断缓存中的数据是否为空
-        if (StringUtils.isNotBlank(json2)){
-            rLock.unlock();
-            return JSON.parseObject(json2, returnType);
+        try {
+            // 3.当前请求获取锁的过程中，可能有其他请求已经把数据放入缓存，此时，可以再次查询缓存，如果命中则直接返回
+            String json2 = this.redisTemplate.opsForValue().get(key);
+            if (StringUtils.isNotBlank(json2)){
+                return JSON.parseObject(json2, signature.getReturnType());
+            }
+
+            // 4.执行目标方法，从数据库中获取数据
+            Object result = joinPoint.proceed(args);
+
+            // 5.把数据放入缓存并释放分布式锁
+            int timeout = gmallCache.timeout() + new Random().nextInt(gmallCache.random()); // 可以防止缓存雪崩
+            this.redisTemplate.opsForValue().set(key, JSON.toJSONString(result), timeout, TimeUnit.MINUTES);
+
+            return result;
+        } finally {
+            fairLock.unlock();
         }
-
-        // 执行目标方法
-        Object result = joinPoint.proceed(joinPoint.getArgs());
-
-        // 拦截后代码块：放入缓存 释放分布锁
-        int timeout = annotation.timeout();
-        int random = annotation.random();
-        redisTemplate.opsForValue().set(prefix + param, JSON.toJSONString(result), timeout + new Random().nextInt(random), TimeUnit.MINUTES);
-        rLock.unlock();
-
-        return result;
     }
 
 }
