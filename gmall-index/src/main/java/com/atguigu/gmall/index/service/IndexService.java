@@ -47,6 +47,7 @@ public class IndexService {
      * 真正的key作为第三位 找到真正的值
      */
     private static final String KEY_PREFIX = "INDEX:CATES:";
+    private static final String LOCK_PREFIX = "INDEX:CATES:LOCK";
 
     public List<CategoryEntity> queryLvl1Categories() {
         // 通过已有接口直接调用 传参 0 即可查询全部一级分类
@@ -68,34 +69,55 @@ public class IndexService {
             return JSON.parseArray(json, CategoryEntity.class); // json 字符串, 转换类型
         }
 
-        // 2. 远程调用, 查询数据库 并 放入缓存
-        ResponseVo<List<CategoryEntity>> categoryResponseVo = pmsClient.queryLevel23CategoriesByPid(pid);
-        List<CategoryEntity> categoryEntities = categoryResponseVo.getData();
+        /**
+         * 为了防止缓存击穿, 添加分布式锁
+         */
+        RLock fairLock = redissonClient.getFairLock(LOCK_PREFIX + pid);
+        fairLock.lock();
 
-        if (CollectionUtils.isNotEmpty(categoryEntities)) {
-            // 正常数据放入缓存 90 天
+        try {
+            // 当前请求获取锁的过程中, 可能有其他请求已经把数据放入缓存, 此时, 可以再次查询缓存, 如果命中则直接返回
+            String json2 = redisTemplate.opsForValue().get(
+                    // key, value
+                    KEY_PREFIX + pid
+            );
+            // 不为空则
+            if (StringUtils.isNotBlank(json2)) {
+                // 将 Json 字符串数据转换成集合对象
+                return JSON.parseArray(json2, CategoryEntity.class); // json 字符串, 转换类型
+            }
 
-            /**
-             * 缓存雪崩: 由于缓存时间一样, 导致缓存同时失效, 此时大量请求访问这些数据, 请求就会直达数据库, 导致服务器宕机
-             * 　    解决方案: 给缓存时间添加随机值 90 + new Random().nextInt(10)
-             */
-            redisTemplate.opsForValue().set(
-                    KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
-                    90 + new Random().nextInt(10), TimeUnit.DAYS // 缓存时间 90 天
-            );
-        } else {
-            /**
-             * 缓存穿透(数据为空): 大量请求访问不存在的数据, 由于数据不存在, redis 中可能没有, 此时大量请求没有到达数据库, 导致服务器宕机
-             * 　    基础解决方案: 即使为 null 也缓存, 缓存时间一般不超过 5 分钟
-             *       依然存在待解决的问题:  如果每次访问不存在且不重复的数据即使缓存为null 的值 请求依然会直达数据库 应该使用 布隆过滤器
-             */
-            redisTemplate.opsForValue().set(
-                    KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
-                    5, TimeUnit.MINUTES // 缓存时间 5 分钟
-            );
+            // 2. 远程调用, 查询数据库 并 放入缓存
+            ResponseVo<List<CategoryEntity>> categoryResponseVo = pmsClient.queryLevel23CategoriesByPid(pid);
+            List<CategoryEntity> categoryEntities = categoryResponseVo.getData();
+
+            if (CollectionUtils.isNotEmpty(categoryEntities)) {
+                // 正常数据放入缓存 90 天
+
+                /**
+                 * 缓存雪崩: 由于缓存时间一样, 导致缓存同时失效, 此时大量请求访问这些数据, 请求就会直达数据库, 导致服务器宕机
+                 * 　    解决方案: 给缓存时间添加随机值 90 + new Random().nextInt(10)
+                 */
+                redisTemplate.opsForValue().set(
+                        KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
+                        90 + new Random().nextInt(10), TimeUnit.DAYS // 缓存时间 90 天
+                );
+            } else {
+                /**
+                 * 缓存穿透(数据为空): 大量请求访问不存在的数据, 由于数据不存在, redis 中可能没有, 此时大量请求没有到达数据库, 导致服务器宕机
+                 * 　    基础解决方案: 即使为 null 也缓存, 缓存时间一般不超过 5 分钟
+                 *       依然存在待解决的问题:  如果每次访问不存在且不重复的数据即使缓存为null 的值 请求依然会直达数据库 应该使用 布隆过滤器
+                 */
+                redisTemplate.opsForValue().set(
+                        KEY_PREFIX + pid, JSON.toJSONString(categoryEntities), // k, v
+                        5, TimeUnit.MINUTES // 缓存时间 5 分钟
+                );
+            }
+
+            return categoryEntities;
+        } finally {
+            fairLock.unlock();
         }
-
-        return categoryEntities;
     }
 
     Integer i = 1;
