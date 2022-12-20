@@ -109,6 +109,8 @@ public class IndexService {
      *          1. 死锁
      *              一个线程获取到锁 还没有执行到释放锁操作 服务器宕机. 其他线程获取不到锁 即使 服务器重启 这把锁也无法被释放掉. 其他线程一直执行递归操作 最终导致服务器资源耗尽而宕机
      *                  添加过期时间在 set(获取锁) 时去设置过期时间
+     *
+     *              不可重入可能会导致死锁
      *          2. 防误删
      *              如果业务逻辑的执行时间是7s, A 服务获取锁 业务没有执行完 锁3秒被自动释放, B 服务获取到锁 业务没有执行完 锁3秒被自动释放, C 服务获取锁执行业务逻辑.
      *              A 服务业务执行完成 释放锁, 这时释放的是 C 的锁. 导致 C 业务只执行了 1s 就被别人释放. 最终等于没有锁(可能会释放其他服务器的锁)
@@ -164,6 +166,8 @@ public class IndexService {
             // 把 redis 中的 num 值 +1
             redisTemplate.opsForValue().set("number", String.valueOf(++num));
 
+            testSubLock(); // 测试可重入性
+
             // 判断 redis 中 lock 值是否跟当前 uuid 一致, 如果一致则执行 del 指令
             String script = "if redis.call('get', KEYS[1]) == ARGV[1] " +
                     "then " +
@@ -179,5 +183,31 @@ public class IndexService {
 //                redisTemplate.delete("lock");
 //            }
         }
+    }
+
+    public void testSubLock() {
+        String uuid = UUID.randomUUID().toString();
+        Boolean flag = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 3, TimeUnit.SECONDS); // 解决死锁 添加过期时间在 set(获取锁) 时去设置过期时间
+
+        // 一顿操作
+        if (!flag) {
+            try {
+                // 睡眠一段时间 让抢到锁的线程执行业务逻辑 减少竞争
+                Thread.sleep(30);
+                // 设置锁(加锁)失败重新调用该方法进行重试
+                testSubLock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] " +
+                "then " +
+                "   return redis.call('del', KEYS[1])" +
+                "else " +
+                "   return 0 " +
+                "end";
+
+        redisTemplate.execute(new DefaultRedisScript<>(script, Boolean.class), Arrays.asList("lock"), uuid);
     }
 }
