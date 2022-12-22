@@ -49,6 +49,7 @@ public interface GmallPmsApi {
     public ResponseVo<List<SkuEntity>> querySkuBySpuId(@PathVariable("spuId") Long spuId);
 
     // es 数据导入 提供远程接口, 4. 根据 品牌id 查询 品牌
+    // 商品详情页 3. 根据 sku 中的 品牌 id 查询品牌
     @GetMapping("pms/brand/{id}")
     public ResponseVo<BrandEntity> queryBrandById(@PathVariable("id") Long id);
 

@@ -2,6 +2,7 @@ package com.atguigu.gmall.item;
 
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.item.feign.GmallPmsClient;
+import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import org.junit.jupiter.api.Test;
@@ -32,5 +33,14 @@ class GmallItemApplicationTests {
         List<CategoryEntity> categoryEntities = categories.getData();
 
         System.out.println("categoryEntities = " + categoryEntities);
+    }
+
+    // 3. 根据 sku 中的 品牌 id 查询品牌
+    @Test
+    public void test2() {
+        ResponseVo<BrandEntity> brandEntityResponseVo = pmsClient.queryBrandById(1L);
+        BrandEntity brandEntity = brandEntityResponseVo.getData();
+
+        System.out.println("brandEntity = " + brandEntity);
     }
 }
