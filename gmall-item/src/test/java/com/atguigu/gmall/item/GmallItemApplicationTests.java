@@ -5,6 +5,7 @@ import com.atguigu.gmall.item.feign.GmallPmsClient;
 import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
+import com.atguigu.gmall.pms.entity.SpuEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,5 +43,13 @@ class GmallItemApplicationTests {
         BrandEntity brandEntity = brandEntityResponseVo.getData();
 
         System.out.println("brandEntity = " + brandEntity);
+    }
+
+    @Test
+    public void test3() {
+        ResponseVo<SpuEntity> spuEntityResponseVo = pmsClient.querySpuById(13L);
+        SpuEntity spuEntity = spuEntityResponseVo.getData();
+
+        System.out.println("spuEntity = " + spuEntity);
     }
 }

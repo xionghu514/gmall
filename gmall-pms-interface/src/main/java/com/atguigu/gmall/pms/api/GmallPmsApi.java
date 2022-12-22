@@ -37,6 +37,7 @@ public interface GmallPmsApi {
     public ResponseVo<List<SpuEntity>> querySpuByPageJson(@RequestBody PageParamVo paramVo);
 
     // es 数据同步, 根据 spuId 查询 spu
+    // 商品详情页 4. 根据 sku 中的 spuId 查询 spu
     @GetMapping("pms/spu/{id}")
     public ResponseVo<SpuEntity> querySpuById(@PathVariable("id") Long id);
 
