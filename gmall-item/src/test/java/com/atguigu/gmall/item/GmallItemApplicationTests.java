@@ -9,6 +9,7 @@ import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
+import com.atguigu.gmall.pms.entity.SpuDescEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest
@@ -137,5 +139,19 @@ class GmallItemApplicationTests {
         //          "白色,6G,512G":22,"黑色,8G,256G":15,"黑色,8G,512G":16
         //         }
         System.out.println("data = " + data);
+    }
+
+    // 11. 根据 sku 中 spuId 查询 spu 的描述信息
+    @Test
+    public void test11() {
+        ResponseVo<SpuDescEntity> spuDescEntityResponseVo = pmsClient.querySpuDescById(13L);
+        SpuDescEntity spuDescEntity = spuDescEntityResponseVo.getData();
+
+        if (spuDescEntity != null) {
+            String decript = spuDescEntity.getDecript();
+
+            List<String> list = Arrays.asList(decript.split(",")); // 字符串转集合
+            System.out.println("list = " + list);
+        }
     }
 }
