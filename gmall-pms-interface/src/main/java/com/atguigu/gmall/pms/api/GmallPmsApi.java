@@ -6,6 +6,7 @@ import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
+import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +49,10 @@ public interface GmallPmsApi {
     // es 数据导入 提供远程接口, 2. 根据 spuId 查询 sku
     @GetMapping("pms/sku/spu/{spuId}")
     public ResponseVo<List<SkuEntity>> querySkuBySpuId(@PathVariable("spuId") Long spuId);
+
+    // 商品详情页 5. 根据 skuId 查询 sku 图片列表
+    @GetMapping("pms/skuimages/sku/{skuId}")
+    public ResponseVo<List<SkuImagesEntity>> querySkuImagesBySkuId(@PathVariable("skuId") Long skuId);
 
     // es 数据导入 提供远程接口, 4. 根据 品牌id 查询 品牌
     // 商品详情页 3. 根据 sku 中的 品牌 id 查询品牌
