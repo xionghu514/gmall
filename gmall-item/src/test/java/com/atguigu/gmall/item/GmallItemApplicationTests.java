@@ -6,6 +6,7 @@ import com.atguigu.gmall.item.feign.GmallSmsClient;
 import com.atguigu.gmall.item.feign.GmallWmsClient;
 import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
+import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
@@ -105,5 +106,19 @@ class GmallItemApplicationTests {
         //      SaleAttrValueVo(attrId=5, attrName=机身存储, attrValue=[256G, 128G, 512G])
         // ]
         System.out.println("saleAttrValueVos = " + saleAttrValueVos);
+    }
+
+    // 9. 根据 skuId 查询当前 sku 的销售属性
+    @Test
+    public void test9() {
+        ResponseVo<List<SkuAttrValueEntity>> listResponseVo = pmsClient.querySaleAttrValuesBySkuId(12L);
+        List<SkuAttrValueEntity> attrValueEntities = listResponseVo.getData();
+
+        // [
+        //      SkuAttrValueEntity(id=37, skuId=13, attrId=3, attrName=机身颜色, attrValue=黑色, sort=0),
+        //      SkuAttrValueEntity(id=38, skuId=13, attrId=4, attrName=运行内存, attrValue=6G, sort=0),
+        //      SkuAttrValueEntity(id=39, skuId=13, attrId=5, attrName=机身存储, attrValue=128G, sort=0)
+        // ]
+        System.out.println("attrValueEntities = " + attrValueEntities);
     }
 }
