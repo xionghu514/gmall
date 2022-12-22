@@ -3,12 +3,14 @@ package com.atguigu.gmall.item;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.item.feign.GmallPmsClient;
 import com.atguigu.gmall.item.feign.GmallSmsClient;
+import com.atguigu.gmall.item.feign.GmallWmsClient;
 import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
+import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +25,9 @@ class GmallItemApplicationTests {
 
     @Autowired
     private GmallSmsClient smsClient;
+
+    @Autowired
+    private GmallWmsClient wmsClient;
 
     // 1. 根据 skuId 查询 sku
     @Test
@@ -76,5 +81,14 @@ class GmallItemApplicationTests {
         List<ItemSaleVo> itemSaleVos = listResponseVo.getData();
 
         System.out.println("itemSaleVos = " + itemSaleVos);
+    }
+
+    // 7. 根据 skuId 查询 sku 的库存信息
+    @Test
+    public void test7() {
+        ResponseVo<List<WareSkuEntity>> listResponseVo = wmsClient.queryWareSkusBySkuId(1L);
+        List<WareSkuEntity> skuEntities = listResponseVo.getData();
+
+        System.out.println("skuEntities = " + skuEntities);
     }
 }
