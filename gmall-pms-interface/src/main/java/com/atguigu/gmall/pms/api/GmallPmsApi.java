@@ -9,6 +9,7 @@ import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,6 +82,10 @@ public interface GmallPmsApi {
             @PathVariable("cid") Long cid,
             @RequestParam("skuId") Long skuId
     );
+
+    // 商品详情页 8. 根据 sku 中的 spuId 查询 spu 下的所有销售属性
+    @GetMapping("pms/skuattrvalue/spu/{spuId}")
+    public ResponseVo<List<SaleAttrValueVo>> querySaleAttrValuesBySpuId(@PathVariable("spuId") Long spuId);
 
     // es 数据导入 提供远程接口, 7. 查询 基本类型的检索属性和值
     @GetMapping("pms/spuattrvalue/search/attr/value/{cid}")

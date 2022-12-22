@@ -9,6 +9,7 @@ import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import org.junit.jupiter.api.Test;
@@ -90,5 +91,19 @@ class GmallItemApplicationTests {
         List<WareSkuEntity> skuEntities = listResponseVo.getData();
 
         System.out.println("skuEntities = " + skuEntities);
+    }
+
+    // 8. 根据 sku 中的 spuId 查询 spu 下的所有销售属性
+    @Test
+    public void test8() {
+        ResponseVo<List<SaleAttrValueVo>> listResponseVo = pmsClient.querySaleAttrValuesBySpuId(12L);
+        List<SaleAttrValueVo> saleAttrValueVos = listResponseVo.getData();
+
+        // [
+        //      SaleAttrValueVo(attrId=3, attrName=机身颜色, attrValue=[黑色, 白色]),
+        //      SaleAttrValueVo(attrId=4, attrName=运行内存, attrValue=[6G, 12G, 8G]),
+        //      SaleAttrValueVo(attrId=5, attrName=机身存储, attrValue=[256G, 128G, 512G])
+        // ]
+        System.out.println("saleAttrValueVos = " + saleAttrValueVos);
     }
 }
