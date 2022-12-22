@@ -2,11 +2,13 @@ package com.atguigu.gmall.item;
 
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.item.feign.GmallPmsClient;
+import com.atguigu.gmall.item.feign.GmallSmsClient;
 import com.atguigu.gmall.pms.entity.BrandEntity;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +20,9 @@ class GmallItemApplicationTests {
 
     @Autowired
     private GmallPmsClient pmsClient;
+
+    @Autowired
+    private GmallSmsClient smsClient;
 
     // 1. 根据 skuId 查询 sku
     @Test
@@ -62,5 +67,14 @@ class GmallItemApplicationTests {
         List<SkuImagesEntity> imagesEntities = listResponseVo.getData();
 
         System.out.println("imagesEntities = " + imagesEntities);
+    }
+
+    // 6. 根据 skuId 查询 sku 的所有营销信息
+    @Test
+    public void test6() {
+        ResponseVo<List<ItemSaleVo>> listResponseVo = smsClient.querySalesBySkuId(13L);
+        List<ItemSaleVo> itemSaleVos = listResponseVo.getData();
+
+        System.out.println("itemSaleVos = " + itemSaleVos);
     }
 }

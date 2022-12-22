@@ -5,6 +5,7 @@ import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.sms.entity.SkuBoundsEntity;
 import com.atguigu.gmall.sms.service.SkuBoundsService;
+import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.sms.vo.SkuSaleVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +33,14 @@ public class SkuBoundsController {
 
     @Autowired
     private SkuBoundsService skuBoundsService;
+
+    // 商品详情页 6. 根据 skuId 查询 营销信息
+    @GetMapping("sku/{skuId}")
+    public ResponseVo<List<ItemSaleVo>> querySalesBySkuId(@PathVariable("skuId") Long skuId) {
+        List<ItemSaleVo> itemSaleVos = skuBoundsService.querySalesBySkuId(skuId);
+
+        return ResponseVo.ok(itemSaleVos);
+    }
 
     /**
      * feign 请求方式: Get / Post 阉割版的 http 协议, 支持占位符, 支持普通参数, 不支持 form 表单
