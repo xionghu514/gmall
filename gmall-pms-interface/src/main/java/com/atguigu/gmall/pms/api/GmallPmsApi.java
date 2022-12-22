@@ -40,6 +40,10 @@ public interface GmallPmsApi {
     @GetMapping("pms/spu/{id}")
     public ResponseVo<SpuEntity> querySpuById(@PathVariable("id") Long id);
 
+    // 商品详情页 1. 根据 skuId 查询 sku
+    @GetMapping("pms/sku/{id}")
+    public ResponseVo<SkuEntity> querySkuById(@PathVariable("id") Long id);
+
     // es 数据导入 提供远程接口, 2. 根据 spuId 查询 sku
     @GetMapping("pms/sku/spu/{spuId}")
     public ResponseVo<List<SkuEntity>> querySkuBySpuId(@PathVariable("spuId") Long spuId);
