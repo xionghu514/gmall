@@ -5,6 +5,7 @@ import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.AttrGroupEntity;
 import com.atguigu.gmall.pms.service.AttrGroupService;
+import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,6 +34,18 @@ public class AttrGroupController {
 
     @Autowired
     private AttrGroupService attrGroupService;
+
+    // 商品详情页 12. 查询规格参数分组及组下的规格参数和值
+    @GetMapping("with/attr/value/{cid}")
+    public ResponseVo<List<ItemGroupVo>> queryGroupsWithAttrValuesByCidAndSpuIdAndSkuId(
+            @PathVariable("cid") Long cid,
+            @RequestParam("spuId") Long spuId,
+            @RequestParam("skuId") Long skuId
+    ) {
+        List<ItemGroupVo> groupVos = attrGroupService.queryGroupsWithAttrValuesByCidAndSpuIdAndSkuId(cid, spuId, skuId);
+
+        return ResponseVo.ok(groupVos);
+    }
 
     /**
      * baseCrud: 7. 根据分类 id 查询分类下的组及规格参数

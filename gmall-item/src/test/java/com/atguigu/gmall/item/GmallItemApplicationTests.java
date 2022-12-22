@@ -11,6 +11,7 @@ import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuDescEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
@@ -153,5 +154,14 @@ class GmallItemApplicationTests {
             List<String> list = Arrays.asList(decript.split(",")); // 字符串转集合
             System.out.println("list = " + list);
         }
+    }
+
+    // 12. 查询规格参数分组及组下的规格参数和值
+    @Test
+    public void test12() {
+        ResponseVo<List<ItemGroupVo>> listResponseVo = pmsClient.queryGroupsWithAttrValuesByCidAndSpuIdAndSkuId(225L, 12L, 11L);
+        List<ItemGroupVo> responseVoData = listResponseVo.getData();
+
+        System.out.println("responseVoData = " + responseVoData);
     }
 }

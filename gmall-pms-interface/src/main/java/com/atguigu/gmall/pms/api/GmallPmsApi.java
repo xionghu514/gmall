@@ -10,6 +10,7 @@ import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuDescEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,4 +108,11 @@ public interface GmallPmsApi {
     @GetMapping("pms/spudesc/{spuId}")
     public ResponseVo<SpuDescEntity> querySpuDescById(@PathVariable("spuId") Long spuId);
 
+    // 商品详情页 12. 查询规格参数分组及组下的规格参数和值
+    @GetMapping("pms/attrgroup/with/attr/value/{cid}")
+    public ResponseVo<List<ItemGroupVo>> queryGroupsWithAttrValuesByCidAndSpuIdAndSkuId(
+            @PathVariable("cid") Long cid,
+            @RequestParam("spuId") Long spuId,
+            @RequestParam("skuId") Long skuId
+    );
 }

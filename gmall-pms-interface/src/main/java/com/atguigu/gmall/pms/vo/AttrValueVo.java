@@ -1,4 +1,4 @@
-package com.atguigu.gmall.item.pojo;
+package com.atguigu.gmall.pms.vo;
 
 import lombok.Data;
 
