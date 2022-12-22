@@ -1,6 +1,7 @@
 package com.atguigu.gmall.item.pojo;
 
 import com.atguigu.gmall.pms.entity.CategoryEntity;
+import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
@@ -36,11 +37,11 @@ public class ItemVo {
     private Integer weight; // 重量
 
     private String defaultImage; // 默认图片
-    private List<String> image; // sku 图片列表
+    private List<SkuImagesEntity> image; // sku 图片列表
 
     private List<ItemSaleVo> sales; // 营销类型
 
-    private Boolean store; // 是否有货
+    private Boolean store = false; // 是否有货
 
     // [{attrId: 3, attrName: 机身颜色, attrValues: ['白天白', '暗夜黑']}]
     // [{attrId: 4, attrName: 运行内存, attrValues: ['8G', '12G']}]
