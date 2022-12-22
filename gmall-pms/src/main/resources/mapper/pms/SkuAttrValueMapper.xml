@@ -2,4 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.atguigu.gmall.pms.mapper.SkuAttrValueMapper">
 
+    <!--
+        动态 sql
+            collection 遍历内容 skuIds. item 每个值 skuId. separator 使用 "," 拼接. open 以 "(" 开头. close 以 ")" 结尾.
+    -->
+    <select id="queryMappingBySkuIds" resultType="java.util.Map">
+        select sku_id, group_concat(attr_value order by attr_id) as attr_values
+        from pms_sku_attr_value
+        where sku_id in
+        <foreach collection="skuIds" item="skuId" separator="," open="(" close=")">
+            #{skuId}
+        </foreach>
+        group by sku_id
+    </select>
 </mapper>

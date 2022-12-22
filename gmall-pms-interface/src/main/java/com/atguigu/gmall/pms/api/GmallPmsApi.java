@@ -91,6 +91,10 @@ public interface GmallPmsApi {
     @GetMapping("pms/skuattrvalue/sku/{skuId}")
     public ResponseVo<List<SkuAttrValueEntity>> querySaleAttrValuesBySkuId(@PathVariable("skuId") Long skuId);
 
+    // 商品详情页 10. 根据 spuId 查询 spu下所有销售属性组合与 skuId 的映射关系
+    @GetMapping("pms/skuattrvalue/mapping/{spuId}")
+    public ResponseVo<String> queryMappingBySpuId(@PathVariable("spuId") Long spuId);
+
     // es 数据导入 提供远程接口, 7. 查询 基本类型的检索属性和值
     @GetMapping("pms/spuattrvalue/search/attr/value/{cid}")
     public ResponseVo<List<SpuAttrValueEntity>> querySearchAttrValueByCidAndSpuId(

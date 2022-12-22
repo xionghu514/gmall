@@ -22,5 +22,7 @@ public interface SkuAttrValueService extends IService<SkuAttrValueEntity> {
     List<SkuAttrValueEntity> querySearchAttrValueByCidAndSkuId(Long cid, Long skuId);
 
     List<SaleAttrValueVo> querySaleAttrValuesBySpuId(Long spuId);
+
+    String queryMappingBySpuId(Long spuId);
 }
 

@@ -121,4 +121,21 @@ class GmallItemApplicationTests {
         // ]
         System.out.println("attrValueEntities = " + attrValueEntities);
     }
+
+    // 10. 根据 spuId 查询 spu下所有销售属性组合与 skuId 的映射关系
+    @Test
+    public void test10() {
+        ResponseVo<String> stringResponseVo = pmsClient.queryMappingBySpuId(12L);
+        String data = stringResponseVo.getData();
+
+        // data = {
+        //          "白色,8G,512G":25,"白色,8G,128G":23,"白色,12G,256G":27,
+        //          "黑色,12G,256G":18,"黑色,6G,256G":12,"黑色,6G,128G":11,
+        //          "白色,8G,256G":24,"黑色,6G,512G":13,"黑色,12G,128G":17,
+        //          "白色,6G,256G":21,"黑色,12G,512G":19,"白色,6G,128G":20,
+        //          "白色,12G,128G":26,"黑色,8G,128G":14,"白色,12G,512G":28,
+        //          "白色,6G,512G":22,"黑色,8G,256G":15,"黑色,8G,512G":16
+        //         }
+        System.out.println("data = " + data);
+    }
 }

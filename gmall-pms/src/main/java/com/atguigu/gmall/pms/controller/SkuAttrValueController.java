@@ -35,6 +35,14 @@ public class SkuAttrValueController {
     @Autowired
     private SkuAttrValueService skuAttrValueService;
 
+    // 10. 根据 spuId 查询 spu下所有销售属性组合与 skuId 的映射关系
+    @GetMapping("mapping/{spuId}")
+    public ResponseVo<String> queryMappingBySpuId(@PathVariable("spuId") Long spuId) {
+        String json = skuAttrValueService.queryMappingBySpuId(spuId);
+
+        return ResponseVo.ok(json);
+    }
+
     // 商品详情页 9. 根据 skuId 查询当前 sku 的销售属性
     @GetMapping("sku/{skuId}")
     public ResponseVo<List<SkuAttrValueEntity>> querySaleAttrValuesBySkuId(@PathVariable("skuId") Long skuId) {
