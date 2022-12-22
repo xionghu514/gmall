@@ -65,6 +65,17 @@ public class CategoryController {
         return ResponseVo.ok(categoryEntities);
     }
 
+    /**
+     * 商品详情页 2. 根据 sku 中的 三级分类 id 查询 一二三级分类
+     * @param cid3
+     * @return
+     */
+    @GetMapping("lvl123/{cid3}")
+    public ResponseVo<List<CategoryEntity>> queryLvl123CategoriesByCid3(@PathVariable("cid3") Long cid3) {
+        List<CategoryEntity> categoryEntities = categoryService.queryLvl123CategoriesByCid3(cid3);
+
+        return ResponseVo.ok(categoryEntities);
+    }
 
     /**
      * 列表
