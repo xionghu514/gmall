@@ -81,4 +81,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 
     }
 
+    /**
+     * loginName 可以是 邮箱、手机号、名称
+     *      1. 根据登陆名查询用户
+     *      2. 对用户输入的明文密码加盐加密
+     *      3. 比较数据库中的密文密码 和 上一步处理的密码. 一致才返回用户信息
+     * @param loginName 默认用户 ikun
+     * @param password  默认密码 cxk520
+     * @return
+     */
+    @Override
+    public UserEntity queryUser(String loginName, String password) {
+        // 1. 根据登陆名查询用户
+        UserEntity userEntity = getOne(
+                new QueryWrapper<UserEntity>()
+                        .eq("username", loginName).or()
+                        .eq("phone", loginName).or()
+                        .eq("email", loginName)
+        );
+
+        // 登陆名输出错误
+        if (userEntity == null) {
+            return userEntity;
+        }
+
+        // 2. 对用户输入的明文密码加盐加密
+        password = DigestUtils.md5Hex(password + userEntity.getSalt()); // 密文密码
+
+        // 3. 比较数据库中的密文密码 和 上一步处理的密码. 一致才返回用户信息
+        if (StringUtils.equals(password, userEntity.getPassword())) {
+            return userEntity;
+        }
+
+        return null;
+    }
+
 }

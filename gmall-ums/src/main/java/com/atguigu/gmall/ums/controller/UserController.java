@@ -34,6 +34,21 @@ public class UserController {
     private UserService userService;
 
     /**
+     * 用户登陆
+     * @param loginName
+     * @param password
+     * @return
+     */
+    @GetMapping("query")
+    public ResponseVo<UserEntity> queryUser(
+            @RequestParam("loginName")String loginName,
+            @RequestParam("password")String password
+    ){
+        UserEntity userEntity = userService.queryUser(loginName, password);
+        return ResponseVo.ok(userEntity);
+    }
+
+    /**
      * 注册
      *      1. 校验验证码
      *      2. 生成盐
