@@ -20,7 +20,11 @@ import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -47,6 +51,9 @@ public class ItemService {
 
     @Autowired
     private ExecutorService executorService;
+
+    @Autowired
+    private TemplateEngine templateEngine;
 
     public ItemVo loadData(Long skuId) {
         ItemVo itemVo = new ItemVo();
@@ -291,7 +298,28 @@ public class ItemService {
                 descFuture, groupFuture
         ).join();
 
+        // 生成静态页面
+//        generateHtml(itemVo); // 使用这种方式如果发生异常可能会导致我们这个功能不可用, 应该使用 异步的方式生成
+        executorService.execute( // 异步生成静态页面
+                () -> generateHtml(itemVo)
+        );
+
         return itemVo;
+    }
+
+    private void generateHtml(ItemVo itemVo) {
+        try (PrintWriter printWriter = new PrintWriter(new File("/Users/admin/Documents/html/", itemVo.getSkuId() + ".html"))) {
+            // 上下文对象的初始化
+            Context context = new Context();
+            // 页面静态化所需要的数据模型
+            context.setVariable("itemVo", itemVo);
+            /**
+             * 页面静态化方法: 1. 模版名称 2. 上下文对象 3. 文件流
+             */
+            templateEngine.process("item", context, printWriter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
