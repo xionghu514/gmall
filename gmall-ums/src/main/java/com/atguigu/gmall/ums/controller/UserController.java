@@ -33,6 +33,19 @@ public class UserController {
     private UserService userService;
 
     /**
+     * 校验数据是否可用
+     * @param data
+     * @param type
+     * @return
+     */
+    @GetMapping("check/{data}/{type}")
+    public ResponseVo<Boolean> checkData(@PathVariable("data") String data, @PathVariable("type") Integer type) {
+        Boolean b = userService.checkData(data, type);
+
+        return ResponseVo.ok(b);
+    }
+
+    /**
      * 列表
      */
     @GetMapping
