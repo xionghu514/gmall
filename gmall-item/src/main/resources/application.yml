@@ -22,3 +22,8 @@ spring:
 feign: # feign
   sentinel:
     enabled: true # 开启 feign 的 sentinel 功能
+threadPool: # 线程池配置
+  corePoolSize: 100 # 核心线程数
+  maximumPoolSize: 200 # 最大线程数
+  keepAliveTime: 60 # 生存时间
+  blockQueueSize: 2000 # 阻塞队列大小
