@@ -36,6 +36,8 @@ spring:
           predicates: # 断言
             - Host=gmall.com, www.gmall.com # 因为首页服务可以没有路径, 再使用 路径 Path 进行路由就不合适了, 应该使用域名进行路由
 #            - Path=/index/** # 如果写在一个路由里面, 他们的关系是and关系. 同时满足才可以
+          filters:
+            - Auth=/xxxx,/yyyy,/zzzz,/nnn,/hhhh
         - id: index-route2 # 首页的异步请求路由
           uri: lb://index-service # 路由到那里, 路由到服务名对应的服务
           predicates: # 断言
@@ -48,3 +50,7 @@ spring:
           uri: lb://auth-service # 路由唯一标识, 商品详情页工程路由
           predicates: # 断言
             - Host=sso.gmall.com # 域名进行路由
+jwt:
+  cookieName: GMALL-TOKEN
+  token: token
+  pubKeyPath: /Users/admin/Documents/project/learn/gmall/gmall-auth/src/main/resources/rsa/rsa.pub
