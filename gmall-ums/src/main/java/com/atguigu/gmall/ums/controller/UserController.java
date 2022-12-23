@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,6 +32,24 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    /**
+     * 注册
+     *      1. 校验验证码
+     *      2. 生成盐
+     *      3. 加盐加密
+     *      4. 新增用户
+     *      5. 删除验证码
+     * @param userEntity
+     * @param code
+     * @return
+     */
+    @PostMapping("register")
+    public ResponseVo<Object> register(UserEntity userEntity, @RequestParam("code") String code) {
+        userService.register(userEntity, code);
+
+        return ResponseVo.ok(null);
+    }
 
     /**
      * 校验数据是否可用
