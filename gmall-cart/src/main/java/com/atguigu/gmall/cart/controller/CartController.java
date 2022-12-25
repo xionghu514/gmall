@@ -3,10 +3,13 @@ package com.atguigu.gmall.cart.controller;
 import com.atguigu.gmall.cart.interceptors.LoginInterceptor;
 import com.atguigu.gmall.cart.pojo.Cart;
 import com.atguigu.gmall.cart.service.CartService;
+import com.atguigu.gmall.common.bean.ResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
@@ -89,6 +92,22 @@ public class CartController {
 
         model.addAttribute("carts", carts);
         return "cart";
+    }
+
+    @PostMapping("updateNum")
+    @ResponseBody
+    public ResponseVo updateNum(@RequestBody Cart cart) {
+        cartService.updateNum(cart);
+
+        return ResponseVo.ok();
+    }
+
+    @PostMapping("updateStatus")
+    @ResponseBody
+    public ResponseVo updateStatus(@RequestBody Cart cart) {
+        cartService.updateStatus(cart);
+
+        return ResponseVo.ok();
     }
 
     /**
