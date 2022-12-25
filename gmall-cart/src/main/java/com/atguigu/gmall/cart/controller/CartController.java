@@ -34,12 +34,16 @@ public class CartController {
      */
     @GetMapping
     public String saveCart(Cart cart) {
+        long now = System.currentTimeMillis();
+        System.out.println("controller.test 方法开始执行！");
 
         if (cart == null || cart.getSkuId() == null) {
             throw new RuntimeException("没有选择添加到购物车的商品信息！");
         }
 
         cartService.saveCart(cart);
+
+        System.out.println("controller.test 方法结束执行！！！" + (System.currentTimeMillis() - now));
 
         // 重定向到新增成功页
         return "redirect:http://cart.gmall.com/addCart.html?skuId=" + cart.getSkuId() + "&count=" + cart.getCount();

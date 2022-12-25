@@ -6,7 +6,6 @@ import com.atguigu.gmall.cart.feign.GmallPmsClient;
 import com.atguigu.gmall.cart.feign.GmallSmsClient;
 import com.atguigu.gmall.cart.feign.GmallWmsClient;
 import com.atguigu.gmall.cart.interceptors.LoginInterceptor;
-import com.atguigu.gmall.cart.mapper.CartMapper;
 import com.atguigu.gmall.cart.pojo.Cart;
 import com.atguigu.gmall.cart.pojo.UserInfo;
 import com.atguigu.gmall.common.bean.ResponseVo;
@@ -15,7 +14,6 @@ import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -35,8 +33,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CartService {
 
+//    @Autowired
+//    private CartMapper cartMapper;
+
     @Autowired
-    private CartMapper cartMapper;
+    private CartAsyncService asyncService;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -103,11 +104,12 @@ public class CartService {
 //            hashOps.put(skuId, JSON.toJSONString(cart));
 
             // 更新到数据库 mysql. 更新那个用户的哪条商品的购物车
-            cartMapper.update(
-                    cart, new UpdateWrapper<Cart>()
-                            .eq("user_id", userId)
-                            .eq("sku_id", skuId)
-            );
+//            cartMapper.update(
+//                    cart, new UpdateWrapper<Cart>()
+//                            .eq("user_id", userId)
+//                            .eq("sku_id", skuId)
+//            );
+            asyncService.updateCart(userId, skuId, cart);
         } else {
             // 不包含 新增记录, 此时购物车中只有两个参数 1. sku_id 2. count 其他参数需要调用远程接口进行设置 在保存到数据库
             cart.setUserId(userId);
@@ -157,7 +159,8 @@ public class CartService {
 //            hashOps.put(skuId, JSON.toJSONString(cart));
 
             // 保存到数据库 mysql
-            cartMapper.insert(cart);
+//            cartMapper.insert(cart);
+            asyncService.insertCart(cart);
         }
         // 不管是更新还是新增都会执行该方法 提取出来
         hashOps.put(skuId, JSON.toJSONString(cart));
