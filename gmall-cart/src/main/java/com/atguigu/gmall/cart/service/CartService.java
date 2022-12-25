@@ -195,7 +195,10 @@ public class CartService {
         return userId;
     }
 
-    @Async
+    @Async // 标记异步调用方法
+//    public String executor1() {
+//    public Future<String> executor1() { // Future<真正要返回的数据类型>
+//    public ListenableFuture<String> executor1() {
     public void executor1() {
         try {
             System.out.println("executor1方法开始执行");
@@ -204,16 +207,34 @@ public class CartService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //        return "Hello executor2";
+
+//        return AsyncResult.forValue("executor1");
     }
 
-    @Async
+    @Async // 标记异步调用方法
+//    public String executor1() {
+//    public Future<String> executor2() {
+//    public ListenableFuture<String> executor2() {
     public void executor2() {
         try {
             System.out.println("executor2方法开始执行");
             TimeUnit.SECONDS.sleep(4);
+
+            int i = 1 / 0;
+
             System.out.println("executor2方法结束执行。。。");
+
+//            return AsyncResult.forValue("Hello executor2"); // 正常响应
         } catch (InterruptedException e) {
             e.printStackTrace();
+
+//            return AsyncResult.forExecutionException(e); // 异常响应
         }
+
+        //        return "Hello executor2";
+
+//        return AsyncResult.forValue("executor2");
     }
 }
