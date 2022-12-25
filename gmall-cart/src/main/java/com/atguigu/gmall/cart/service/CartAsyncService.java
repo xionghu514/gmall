@@ -42,4 +42,13 @@ public class CartAsyncService {
                 new UpdateWrapper<Cart>().eq("user_id", userId)
         );
     }
+
+    @Async
+    public void deleteByUserIdAndSkuId(String userId, Long skuId) {
+        cartMapper.delete(
+                new UpdateWrapper<Cart>()
+                        .eq("user_id", userId)
+                        .eq("sku_id", skuId)
+        );
+    }
 }
