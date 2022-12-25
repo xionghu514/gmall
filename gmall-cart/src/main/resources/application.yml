@@ -43,3 +43,8 @@ mybatis-plus: # mybatis-plus 配置
 logging: # 查看执行 SQL
   level: # 级别
     com.atguigu.gmall.cart: debug # debug 模式
+jwt:
+  cookieName: GMALL-TOKEN
+  pubKeyPath: /Users/admin/Documents/project/learn/gmall/gmall-auth/src/main/resources/rsa/rsa.pub
+  userKey: user-key
+  expire: 864000
