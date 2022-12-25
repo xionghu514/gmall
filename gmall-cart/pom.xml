@@ -41,7 +41,7 @@
         <!-- sms 接口工程 -->
         <dependency>
             <groupId>com.atguigu</groupId>
-            <artifactId>gmall-pms-interface</artifactId>
+            <artifactId>gmall-sms-interface</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
