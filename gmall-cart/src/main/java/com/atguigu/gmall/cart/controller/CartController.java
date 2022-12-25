@@ -77,4 +77,30 @@ public class CartController {
 
         return "hello cart!";
     }
+
+    /**
+     * 在日常开发中，我们的逻辑都是 同步调用，顺序执行。在一些场景下，我们会希望异步调用，将和主线程关联度低的逻辑 异步调用，以实现让主线程更快的执行完成，提升性能。
+     * 考虑到异步调用的 可靠性，我们一般会考虑引入分布式消息队列, 例如说 RabbitMQ、RocketMQ、Kafka 等等。但是在一些时候，我们并不需要这么高的可靠性，可以使用 进程内 的队列或者线程池
+     *
+     *      本地异步: 一个工程内, jvm 4 种多线程方式。性能较高, 可靠性相对较差
+     *      分布式异步: 跨工程, MQ异步。性能相对较低, 可靠性较高
+     *
+     *      编程式异步: 四种多线程方式
+     *      声明式异步: SpringTask 提供了一套注解 @EnableAsync 启用异步功能 @Async 开启异步
+     *
+     * @return
+     */
+    @GetMapping("test2")
+    @ResponseBody
+    public String test2(){
+//        System.out.println("Controller 方法执行了" + LoginInterceptor.getUserInfo());
+
+        long now = System.currentTimeMillis();
+        System.out.println("controller.test 方法开始执行！");
+        this.cartService.executor1();
+        this.cartService.executor2();
+        System.out.println("controller.test 方法结束执行！！！" + (System.currentTimeMillis() - now));
+
+        return "hello cart!";
+    }
 }

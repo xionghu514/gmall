@@ -19,10 +19,12 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description:
@@ -193,4 +195,25 @@ public class CartService {
         return userId;
     }
 
+    @Async
+    public void executor1() {
+        try {
+            System.out.println("executor1方法开始执行");
+            TimeUnit.SECONDS.sleep(5);
+            System.out.println("executor1方法结束执行。。。");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Async
+    public void executor2() {
+        try {
+            System.out.println("executor2方法开始执行");
+            TimeUnit.SECONDS.sleep(4);
+            System.out.println("executor2方法结束执行。。。");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
