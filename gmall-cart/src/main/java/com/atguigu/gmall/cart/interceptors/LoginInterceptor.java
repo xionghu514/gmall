@@ -6,6 +6,7 @@ import com.atguigu.gmall.common.utils.CookieUtils;
 import com.atguigu.gmall.common.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,6 +24,7 @@ import java.util.UUID;
  */
 @Component // 注入到 spring 容器
 //@Data
+@EnableConfigurationProperties(JwtProperties.class)
 public class LoginInterceptor implements HandlerInterceptor {
 
 //    private UserInfo userInfo;
