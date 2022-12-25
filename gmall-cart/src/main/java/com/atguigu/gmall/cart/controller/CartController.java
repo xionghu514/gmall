@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Description:
@@ -80,6 +81,14 @@ public class CartController {
         System.out.println(LoginInterceptor.getUserInfo());
 
         return "hello cart!";
+    }
+
+    @GetMapping("cart.html")
+    public String queryCarts(Model model) {
+        List<Cart> carts = cartService.queryCarts();
+
+        model.addAttribute("carts", carts);
+        return "cart";
     }
 
     /**

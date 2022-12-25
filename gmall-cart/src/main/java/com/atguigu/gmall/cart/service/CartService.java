@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Description:
@@ -181,6 +182,96 @@ public class CartService {
         String cartJson = hashOps.get(skuId.toString()).toString();
 
         return JSON.parseObject(cartJson, Cart.class);
+    }
+
+
+    /**
+     * 查询购物车(不管是否登陆 都会查询未登陆的购物车)
+     *      1. 获取登陆状态: 登陆 userid 未登陆 uesrkey
+     *      2. 未登陆则直接以 userKey 查询购物车并返回, 登陆则先合并未登陆的购物车, 清空未登陆的购物车, 最终返回合并后的购物车
+     *
+     * @return
+     */
+    public List<Cart> queryCarts() {
+        // 从拦截器中获取用户信息
+        UserInfo userInfo = LoginInterceptor.getUserInfo();
+
+        // 1. 以 userKey 查询未登陆的购物车
+        String userKey = userInfo.getUserKey();
+        BoundHashOperations<String, Object, Object> unloginHashOps = redisTemplate.boundHashOps(KEY_PREFIX + userKey); // 未登陆购物车操作对象
+        List<Object> cartJsons = unloginHashOps.values(); // 未登陆购物车 JSON 字符串集合
+
+        // 定义未登陆时的购物车集合
+        List<Cart> unloginCarts = null;
+        if (CollectionUtils.isNotEmpty(cartJsons)) {
+            // 不为空将 未登陆购物车的 json 字符串集合 转换成 购物车对象集合 赋值给 未登陆的购物车集合
+            unloginCarts = cartJsons.stream().map(
+                    // 将 json 字符串对象 转换成 购物车对象
+                    cartJson -> JSON.parseObject(cartJson.toString(), Cart.class)
+            ).collect(Collectors.toList());
+        }
+
+        // 2. 判断 userId 未空(判断是否登陆 userId == null). 如果未登陆则直接返回未登陆的购物车
+        Long userId = userInfo.getUserId();
+        if (userId == null) {
+//            System.out.println("unloginCarts = " + unloginCarts);
+
+            // 直接返回未登陆的购物车即可
+            return unloginCarts;
+        }
+
+        // 3. 把未登陆的购物车 合并 到已登陆的购物车(userId)中去
+        BoundHashOperations<String, Object, Object> loginHashOps = redisTemplate.boundHashOps(KEY_PREFIX + userId); // 已登陆购物车操作对象
+
+        // 首先判断是否存在未登陆的购物车 有则 合并到已登陆的购物车 并删除未登陆的购物车
+        if (CollectionUtils.isNotEmpty(unloginCarts)) {
+            // 合并. 当未登陆的购物车中包含已登陆的购物车数据 数量进行累加, 如果未登陆的购物车没有包含已经登陆的购物车数据则新增
+            unloginCarts.forEach(cart -> { // 遍历未登陆未登陆购物车中的每一条记录
+                String skuId = cart.getSkuId().toString();
+                BigDecimal count = cart.getCount(); // 获取未登陆购物车中的数量
+
+                // 遍历未登陆的每一个购物车对象, 判断已登陆的购物车是否包含该记录
+                if (loginHashOps.hasKey(skuId)) {
+                    // 包含: 更新已登陆购物车的数量
+                    String cartJson = loginHashOps.get(skuId).toString(); // 已登陆购物车的 json 字符串对象
+                    cart = JSON.parseObject(cartJson, Cart.class);
+                    cart.setCount(cart.getCount().add(count)); // 已登陆的购物车数量 + 未登陆的购物车数量
+
+                    // 保存到数据库
+//                    loginHashOps.put(skuId, JSON.toJSONString(cart));
+                    asyncService.updateCart(userId.toString(), skuId, cart);
+                } else {
+                    // 不包含: 新增记录
+                    cart.setId(null); // 不设置则会导致主键冲突
+                    cart.setUserId(userId.toString()); // 把 userKey 替换成 userId
+
+                    // 保存到数据库
+//                    loginHashOps.put(skuId, JSON.toJSONString(cart));
+                    asyncService.insertCart(cart);
+                }
+                loginHashOps.put(skuId, JSON.toJSONString(cart));
+            });
+
+            // 4. 删除未登陆的购物车(需要放入判断中, 如果未登陆购物车为空不需要进行删除)
+            redisTemplate.delete(KEY_PREFIX + userKey);
+            asyncService.deleteByUserId(userKey);
+        }
+
+        // 5. 返回合并后的购物车
+        List<Object> loginCartJsons = loginHashOps.values();
+
+        // 可能即没有登陆的购物车 也没有未登陆的购物车
+        if (CollectionUtils.isNotEmpty(loginCartJsons)) {
+            List<Cart> cart = loginCartJsons.stream().map(cartJson ->
+                    JSON.parseObject(cartJson.toString(), Cart.class)
+            ).collect(Collectors.toList());
+
+//            System.out.println("cart = " + cart);
+
+            return cart;
+        }
+
+        return null;
     }
 
     // 不管是更新 还是 新增 还是回显 我们都会用到该方法 提取出来一个方法
