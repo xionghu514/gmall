@@ -33,6 +33,26 @@ spring:
     virtual-host: /admin # 虚拟主机
     username: admin
     password: admin
+  # Spring Task
+  # 使用注意事项
+  #   1. 配置线程池控制线程数, 不配置可能导致线程资源耗尽宕机
+  #   2. 配置统一异常处理器处理异常, 很多时候 异步任务返回不是 future 对象 是 void 需要配置该类作为载体记录异常方便后续处理
+  #   3. 配置关机相关参数 是否等待异步是否完成, 等待时间多少
+  task:
+    execution:
+      thread-name-prefix: gmall-cart- # 线程名前缀
+      pool:
+        core-size: 100 # 核心线程数
+        max-size: 500 # 最大可扩展线程数
+        queue-capacity: 2000 # 阻塞队列大小
+        keep-alive: 60s # 生存时间 带单位
+        # 是否允许核心线程数超时, juc 中核心线程数是不能超时的 只有扩展核心数是可以超时的.
+        # spring 中默认这个线程池的核心线程数也可以超时. 如果 最大可扩展线程数 空闲时间超过 60s 就可以被销毁. 核心线程数 juc 中是不能被销毁的 最少也要保证 设置的核心线程存活
+        # spring 中默认是为 ture 表示 核心线程数也可以被销毁.
+        allow-core-thread-timeout: false # 不允许销毁, 避免空闲时间 热点数据收到大量请求 没有线程的尴尬情况发生
+      shutdown:
+        await-termination: true # 关机时是否需要等待异步任务执行完. 设置为 true, 异步任务没有执行完就关机 在启动也不会在执行 可能导致数据不一致
+        await-termination-period: 60s # 关机等待异步任务执行时间
 feign: # feign
   sentinel:
     enabled: true # 开启 feign 的 sentinel 功能

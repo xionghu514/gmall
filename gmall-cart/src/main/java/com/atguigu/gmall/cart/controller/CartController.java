@@ -97,7 +97,13 @@ public class CartController {
      *                  1. 实现 AsyncUncaughtExceptionHandler 接口
      *                  2. 编写配置实现类 AsyncConfigurer 接口
      *          3. 通过线程池控制线程数
+     *              1. 通过配置类
+     *              2. 通过 yml 配置
      *
+     *      注意
+     *          1. 一定要配置线程池控制线程数
+     *          2. 一定要配置统一的异常处理器
+     *          3. 一定要优雅的关机
      * @return
      */
     @GetMapping("test2")
