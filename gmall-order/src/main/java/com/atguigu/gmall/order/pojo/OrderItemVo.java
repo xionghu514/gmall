@@ -20,8 +20,8 @@ public class OrderItemVo {
     private String title;
     private String defaultImage;
     private BigDecimal price;
-    private Integer count;
-    private BigDecimal weight;
+    private BigDecimal count;
+    private Integer weight;
     private List<SkuAttrValueEntity> saleAttrs; // 销售属性
     private List<ItemSaleVo> sales; // 营销信息
     private Boolean store = false; // 库存信息
