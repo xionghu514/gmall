@@ -6,10 +6,12 @@ import com.atguigu.gmall.order.feign.GmallCartClient;
 import com.atguigu.gmall.order.feign.GmallPmsClient;
 import com.atguigu.gmall.order.feign.GmallSmsClient;
 import com.atguigu.gmall.order.feign.GmallUmsClient;
+import com.atguigu.gmall.order.feign.GmallWmsClient;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
+import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +32,9 @@ class GmallOrderApplicationTests {
 
     @Autowired
     private GmallSmsClient smsClient;
+
+    @Autowired
+    private GmallWmsClient wmsClient;
 
     @Test
     void contextLoads() {
@@ -85,5 +90,14 @@ class GmallOrderApplicationTests {
         List<ItemSaleVo> saleVos = salesResponseVo.getData();
 
         System.out.println("saleVos = " + saleVos);
+    }
+
+    // order 6. 根据skuId查询库存信息
+    @Test
+    public void test6() {
+        ResponseVo<List<WareSkuEntity>> wareResponseVo = wmsClient.queryWareSkusBySkuId(1L);
+        List<WareSkuEntity> wareSkuEntities = wareResponseVo.getData();
+
+        System.out.println("wareSkuEntities = " + wareSkuEntities);
     }
 }
