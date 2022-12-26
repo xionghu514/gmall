@@ -3,7 +3,9 @@ package com.atguigu.gmall.order;
 import com.atguigu.gmall.cart.pojo.Cart;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.order.feign.GmallCartClient;
+import com.atguigu.gmall.order.feign.GmallPmsClient;
 import com.atguigu.gmall.order.feign.GmallUmsClient;
+import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ class GmallOrderApplicationTests {
 
     @Autowired
     private GmallCartClient cartClient;
+
+    @Autowired
+    private GmallPmsClient pmsClient;
 
     @Test
     void contextLoads() {
@@ -47,5 +52,14 @@ class GmallOrderApplicationTests {
         List<Cart> carts = cartsResponseVo.getData();
 
         System.out.println("carts = " + carts);
+    }
+
+    // order 3. 根据skuId查询sku
+    @Test
+    public void test3() {
+        ResponseVo<SkuEntity> skuEntityResponseVo = pmsClient.querySkuById(12L);
+        SkuEntity skuEntity = skuEntityResponseVo.getData();
+
+        System.out.println("skuEntity = " + skuEntity);
     }
 }

@@ -46,6 +46,7 @@ public interface GmallPmsApi {
     public ResponseVo<SpuEntity> querySpuById(@PathVariable("id") Long id);
 
     // 商品详情页 1. 根据 skuId 查询 sku
+    // order 3. 根据skuId查询sku
     @GetMapping("pms/sku/{id}")
     public ResponseVo<SkuEntity> querySkuById(@PathVariable("id") Long id);
 
