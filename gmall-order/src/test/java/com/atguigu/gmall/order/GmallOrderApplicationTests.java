@@ -11,6 +11,7 @@ import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
+import com.atguigu.gmall.ums.entity.UserEntity;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,5 +100,14 @@ class GmallOrderApplicationTests {
         List<WareSkuEntity> wareSkuEntities = wareResponseVo.getData();
 
         System.out.println("wareSkuEntities = " + wareSkuEntities);
+    }
+
+    // order 7. 根据当前用户的id查询用户信息
+    @Test
+    public void test7() {
+        ResponseVo<UserEntity> userEntityResponseVo = umsClient.queryUserById(4L);
+        UserEntity userEntity = userEntityResponseVo.getData();
+
+        System.out.println("userEntity = " + userEntity);
     }
 }

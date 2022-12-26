@@ -36,4 +36,8 @@ public interface GmallUmsApi {
     // order 1. 根据当前用户的id 查询收货地址列表
     @GetMapping("ums/useraddress/user/{userId}")
     public ResponseVo<List<UserAddressEntity>> queryAddressesByUserId(@PathVariable("userId") Long  userId);
+
+    // order 7. 根据当前用户的id查询用户信息
+    @GetMapping("ums/user/{id}")
+    public ResponseVo<UserEntity> queryUserById(@PathVariable("id") Long id);
 }
