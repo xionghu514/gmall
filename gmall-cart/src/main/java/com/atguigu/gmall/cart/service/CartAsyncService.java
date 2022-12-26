@@ -31,7 +31,11 @@ public class CartAsyncService {
     }
 
     @Async
-    public void insertCart(Cart cart) {
+    public void insertCart(String userId, Cart cart) {
+
+        // 模拟异步新增购物车失败
+//        int i = 1 / 0;
+
         cartMapper.insert(cart);
     }
 

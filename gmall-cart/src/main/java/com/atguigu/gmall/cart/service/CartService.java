@@ -163,7 +163,7 @@ public class CartService {
 
             // 保存到数据库 mysql
 //            cartMapper.insert(cart);
-            asyncService.insertCart(cart);
+            asyncService.insertCart(userId, cart);
 
             // 缓存实时价格
             redisTemplate.opsForValue().set(PRICE_PREFIX + skuId, skuEntity.getPrice().toString());
@@ -259,7 +259,7 @@ public class CartService {
 
                     // 保存到数据库
 //                    loginHashOps.put(skuId, JSON.toJSONString(cart));
-                    asyncService.insertCart(cart);
+                    asyncService.insertCart(userId.toString(), cart);
                 }
                 loginHashOps.put(skuId, JSON.toJSONString(cart));
             });
