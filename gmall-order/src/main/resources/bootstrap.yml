@@ -1,6 +1,6 @@
 spring:
   application:
-    name: order -service # 服务名称
+    name: order-service # 服务名称
   cloud:
     nacos:
       config:
