@@ -59,6 +59,19 @@ public class CartService {
     private static final String KEY_PREFIX = "CART:INFO:";
     private static final String PRICE_PREFIX = "CART:PRICE:";
 
+    public List<Cart> queryCheckedCartsByUserId(Long userId) {
+        BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(KEY_PREFIX + userId);
+
+        List<Object> cartJsons = hashOps.values();
+        if (CollectionUtils.isNotEmpty(cartJsons)) {
+            return cartJsons.stream().map(cartJson ->
+                JSON.parseObject(cartJson.toString(), Cart.class)
+            ).filter(Cart::getCheck).collect(Collectors.toList());
+        }
+
+        throw new CartException("你的购物车为空");
+    }
+
     public void saveCart(Cart cart) {
 
         // 1. 获取登陆状态
@@ -278,7 +291,9 @@ public class CartService {
                         Cart cart = JSON.parseObject(cartJson.toString(), Cart.class);
                         // 查询实时价格
                         String currentPriceString = redisTemplate.opsForValue().get(PRICE_PREFIX + cart.getSkuId());
-                        cart.setCurrentPrice(new BigDecimal(currentPriceString));
+                        if (StringUtils.isNotBlank(currentPriceString)) {
+                            cart.setCurrentPrice(new BigDecimal(currentPriceString));
+                        }
 
                         return cart;
                     }

@@ -1,6 +1,8 @@
 package com.atguigu.gmall.order;
 
+import com.atguigu.gmall.cart.pojo.Cart;
 import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.order.feign.GmallCartClient;
 import com.atguigu.gmall.order.feign.GmallUmsClient;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,9 @@ class GmallOrderApplicationTests {
 
     @Autowired
     private GmallUmsClient umsClient;
+
+    @Autowired
+    private GmallCartClient cartClient;
 
     @Test
     void contextLoads() {
@@ -33,5 +38,14 @@ class GmallOrderApplicationTests {
         List<UserAddressEntity> addressEntities = addressesResponseVo.getData();
 
         System.out.println("addressEntities = " + addressEntities);
+    }
+
+    // order 2. 根据当前用户的id 查询已选中的购物车记录
+    @Test
+    public void test2() {
+        ResponseVo<List<Cart>> cartsResponseVo = cartClient.queryCheckedCartsByUserId(4L);
+        List<Cart> carts = cartsResponseVo.getData();
+
+        System.out.println("carts = " + carts);
     }
 }
