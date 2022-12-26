@@ -5,6 +5,7 @@ import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.order.feign.GmallCartClient;
 import com.atguigu.gmall.order.feign.GmallPmsClient;
 import com.atguigu.gmall.order.feign.GmallUmsClient;
+import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
 import org.junit.jupiter.api.Test;
@@ -61,5 +62,14 @@ class GmallOrderApplicationTests {
         SkuEntity skuEntity = skuEntityResponseVo.getData();
 
         System.out.println("skuEntity = " + skuEntity);
+    }
+
+    // order 4. 根据skuId查询销售属性
+    @Test
+    public void test4() {
+        ResponseVo<List<SkuAttrValueEntity>> salesResponseVo = pmsClient.querySaleAttrValuesBySkuId(12L);
+        List<SkuAttrValueEntity> skuAttrValueEntities = salesResponseVo.getData();
+
+        System.out.println("skuAttrValueEntities = " + skuAttrValueEntities);
     }
 }

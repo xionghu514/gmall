@@ -91,6 +91,7 @@ public interface GmallPmsApi {
     public ResponseVo<List<SaleAttrValueVo>> querySaleAttrValuesBySpuId(@PathVariable("spuId") Long spuId);
 
     // 商品详情页 9. 根据 skuId 查询当前 sku 的销售属性
+    // order 4. 根据skuId查询销售属性
     @GetMapping("pms/skuattrvalue/sku/{skuId}")
     public ResponseVo<List<SkuAttrValueEntity>> querySaleAttrValuesBySkuId(@PathVariable("skuId") Long skuId);
 
