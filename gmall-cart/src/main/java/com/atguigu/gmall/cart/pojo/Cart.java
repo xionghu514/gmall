@@ -33,4 +33,7 @@ public class Cart {
     private BigDecimal count;
     private Boolean store = false; // 是否有货
     private String sales; // 营销信息: List<ItemSaleVo>的json格式
+
+    @TableField(exist = false)
+    private BigDecimal currentPrice; // 实时价格
 }

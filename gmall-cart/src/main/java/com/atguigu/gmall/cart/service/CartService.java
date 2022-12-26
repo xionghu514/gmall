@@ -2,6 +2,7 @@ package com.atguigu.gmall.cart.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.atguigu.gmall.cart.feign.GmallPmsClient;
 import com.atguigu.gmall.cart.feign.GmallSmsClient;
 import com.atguigu.gmall.cart.feign.GmallWmsClient;
@@ -56,6 +57,7 @@ public class CartService {
      * 前缀
      */
     private static final String KEY_PREFIX = "CART:INFO:";
+    private static final String PRICE_PREFIX = "CART:PRICE:";
 
     public void saveCart(Cart cart) {
 
@@ -162,6 +164,9 @@ public class CartService {
             // 保存到数据库 mysql
 //            cartMapper.insert(cart);
             asyncService.insertCart(cart);
+
+            // 缓存实时价格
+            redisTemplate.opsForValue().set(PRICE_PREFIX + skuId, skuEntity.getPrice().toString());
         }
         // 不管是更新还是新增都会执行该方法 提取出来
         hashOps.put(skuId, JSON.toJSONString(cart));
@@ -205,10 +210,17 @@ public class CartService {
         List<Cart> unloginCarts = null;
         if (CollectionUtils.isNotEmpty(cartJsons)) {
             // 不为空将 未登陆购物车的 json 字符串集合 转换成 购物车对象集合 赋值给 未登陆的购物车集合
-            unloginCarts = cartJsons.stream().map(
-                    // 将 json 字符串对象 转换成 购物车对象
-                    cartJson -> JSON.parseObject(cartJson.toString(), Cart.class)
-            ).collect(Collectors.toList());
+
+            unloginCarts = cartJsons.stream().map(cartJson -> {
+                Cart cart = JSON.parseObject(cartJson.toString(), Cart.class);
+
+                // 查询实时价格缓存
+                String currentPriceString = redisTemplate.opsForValue().get(PRICE_PREFIX + cart.getSkuId());
+                if (StringUtils.isNotBlank(currentPriceString)) {
+                    cart.setCurrentPrice(new BigDecimal(currentPriceString));
+                }
+                return cart;
+            }).collect(Collectors.toList());
         }
 
         // 2. 判断 userId 未空(判断是否登陆 userId == null). 如果未登陆则直接返回未登陆的购物车
@@ -262,13 +274,19 @@ public class CartService {
 
         // 可能即没有登陆的购物车 也没有未登陆的购物车
         if (CollectionUtils.isNotEmpty(loginCartJsons)) {
-            List<Cart> cart = loginCartJsons.stream().map(cartJson ->
-                    JSON.parseObject(cartJson.toString(), Cart.class)
+            return loginCartJsons.stream().map(cartJson -> {
+                        Cart cart = JSON.parseObject(cartJson.toString(), Cart.class);
+                        // 查询实时价格
+                        String currentPriceString = redisTemplate.opsForValue().get(PRICE_PREFIX + cart.getSkuId());
+                        cart.setCurrentPrice(new BigDecimal(currentPriceString));
+
+                        return cart;
+                    }
             ).collect(Collectors.toList());
 
 //            System.out.println("cart = " + cart);
 
-            return cart;
+//            return cart;
         }
 
         return null;
