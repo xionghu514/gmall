@@ -4,9 +4,11 @@ import com.atguigu.gmall.cart.pojo.Cart;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.order.feign.GmallCartClient;
 import com.atguigu.gmall.order.feign.GmallPmsClient;
+import com.atguigu.gmall.order.feign.GmallSmsClient;
 import com.atguigu.gmall.order.feign.GmallUmsClient;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
+import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ class GmallOrderApplicationTests {
 
     @Autowired
     private GmallPmsClient pmsClient;
+
+    @Autowired
+    private GmallSmsClient smsClient;
 
     @Test
     void contextLoads() {
@@ -71,5 +76,14 @@ class GmallOrderApplicationTests {
         List<SkuAttrValueEntity> skuAttrValueEntities = salesResponseVo.getData();
 
         System.out.println("skuAttrValueEntities = " + skuAttrValueEntities);
+    }
+
+    // order 5. 根据skuId查询营销信息
+    @Test
+    public void test5() {
+        ResponseVo<List<ItemSaleVo>> salesResponseVo = smsClient.querySalesBySkuId(12L);
+        List<ItemSaleVo> saleVos = salesResponseVo.getData();
+
+        System.out.println("saleVos = " + saleVos);
     }
 }

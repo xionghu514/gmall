@@ -22,6 +22,7 @@ public interface GmallSmsApi {
     public ResponseVo saveSales(@RequestBody SkuSaleVo saleVo);
 
     // 商品详情页 6. 根据 skuId 查询 sku 的所有营销信息
+    // order 5. 根据skuId查询营销信息
     @GetMapping("sms/skubounds/sku/{skuId}")
     public ResponseVo<List<ItemSaleVo>> querySalesBySkuId(@PathVariable("skuId") Long skuId);
 
