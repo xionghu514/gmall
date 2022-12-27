@@ -13,6 +13,7 @@ import com.atguigu.gmall.order.feign.GmallWmsClient;
 import com.atguigu.gmall.order.interceptors.LoginInterceptor;
 import com.atguigu.gmall.order.pojo.OrderConfirmVo;
 import com.atguigu.gmall.order.pojo.OrderItemVo;
+import com.atguigu.gmall.order.pojo.OrderSubmitVo;
 import com.atguigu.gmall.order.pojo.UserInfo;
 import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SkuEntity;
@@ -133,5 +134,14 @@ public class OrderService {
         redisTemplate.opsForValue().set(ORDER_PREFIX + orderToken, orderToken);
 
         return confirmVo;
+    }
+
+    public void submit(OrderSubmitVo submitVo) {
+        // 1. 防重提交(保证幂等)
+        // 2. 验价格: 验总价
+        // TODO. sku 表限制购买数量. 限购件数验证
+        // 3. 验库存并锁库存
+        // 4. 创建订单
+        // 5. 删除购物车中对应的记录(可以通过异步的方式进行删除, 1. 购物车删除失败也不影响订单创建, 2. 删除购物车时效性不高 提高一定时间. MQ 异步)
     }
 }

@@ -110,4 +110,14 @@ class GmallOrderApplicationTests {
 
         System.out.println("userEntity = " + userEntity);
     }
+
+    // 分析提交订单所需要接口
+    @Test
+    public void test8() {
+        // 1. 防重提交(保证幂等) 不需要远程接口, 直接查询 redis 即可
+        // 2. 验价格: 验总价(遍历送货清单, 根据每一个 skuId 查询 sku 实时价格 算出实时总价 与 页面比较) 根据 skuId 查询 sku
+        // 3. 验库存并锁库存(wms 完成远程接口)
+        // 4. 创建订单(创建订单)
+        // 5. 删除购物车中对应的记录(可以通过异步的方式进行删除, 1. 购物车删除失败也不影响订单创建, 2. 删除购物车时效性不高 提高一定时间. MQ 异步)
+    }
 }
