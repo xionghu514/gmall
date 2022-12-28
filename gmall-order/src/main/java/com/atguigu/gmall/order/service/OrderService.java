@@ -28,6 +28,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -158,6 +159,28 @@ public class OrderService {
         }
 
         // 2. 验价格: 验总价
+        List<OrderItemVo> items = submitVo.getItems(); // 送货清单
+        if (CollectionUtils.isEmpty(items)) {
+            throw new OrderException("请选择购买的商品!");
+        }
+        BigDecimal totalPrice = submitVo.getTotalPrice(); // 页面总价格
+        // 实时总价格
+        BigDecimal currentTotalPrice = items.stream().map(item -> {
+            ResponseVo<SkuEntity> skuEntityResponseVo = pmsClient.querySkuById(item.getSkuId());
+            SkuEntity skuEntity = skuEntityResponseVo.getData();
+
+            if (skuEntity != null) {
+                return skuEntity.getPrice().multiply(item.getCount()); // 实时小记
+            }
+            return new BigDecimal(0);
+        }).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        System.out.println("currentTotalPrice = " + currentTotalPrice + " " + totalPrice);
+
+        if (currentTotalPrice.compareTo(totalPrice) != 0) {
+            throw new OrderException("页面已过期, 请刷新页面后重试!");
+        }
+
         // TODO. sku 表限制购买数量. 限购件数验证
         // 3. 验库存并锁库存
         // 4. 创建订单
