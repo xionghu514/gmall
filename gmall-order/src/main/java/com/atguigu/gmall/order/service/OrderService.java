@@ -1,5 +1,6 @@
 package com.atguigu.gmall.order.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.atguigu.gmall.cart.pojo.Cart;
@@ -22,6 +23,7 @@ import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.ums.entity.UserAddressEntity;
 import com.atguigu.gmall.ums.entity.UserEntity;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
+import com.atguigu.gmall.wms.vo.SkuLockVo;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -183,6 +185,19 @@ public class OrderService {
 
         // TODO. sku 表限制购买数量. 限购件数验证
         // 3. 验库存并锁库存
+        List<SkuLockVo> lockVOS = items.stream().map(item -> {
+            SkuLockVo skuLockVO = new SkuLockVo();
+            skuLockVO.setSkuId(item.getSkuId());
+            skuLockVO.setCount(item.getCount().intValue());
+            skuLockVO.setOrderToken(submitVo.getOrderToken());
+            return skuLockVO;
+        }).collect(Collectors.toList());
+        ResponseVo<List<SkuLockVo>> skuLockResponseVo = wmsClient.checkAndLock(lockVOS, orderToken);
+        List<SkuLockVo> skuLockVos = skuLockResponseVo.getData();
+        if (CollectionUtils.isNotEmpty(skuLockVos)) {
+            throw new OrderException("手慢了，商品库存不足：" + JSON.toJSONString(skuLockVos));
+        }
+
         // 4. 创建订单
         // 5. 删除购物车中对应的记录(可以通过异步的方式进行删除, 1. 购物车删除失败也不影响订单创建, 2. 删除购物车时效性不高 提高一定时间. MQ 异步)
     }
