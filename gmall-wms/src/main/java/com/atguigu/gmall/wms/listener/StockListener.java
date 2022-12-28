@@ -39,7 +39,7 @@ public class StockListener {
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue("STOCK_UNLOCK_QUEUE"),
             exchange = @Exchange(value = "ORDER_EXCHANGE", ignoreDeclarationExceptions = "true", type = ExchangeTypes.TOPIC),
-            key = {"order.failure"}
+            key = {"order.failure", "stock.unlock"}
     ))
     public void unlock(String orderToken, Message message, Channel channel) throws IOException {
 

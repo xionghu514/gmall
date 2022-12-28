@@ -1,4 +1,4 @@
-package com.atguigu.gmall.order.config;
+package com.atguigu.gmall.oms.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.Queue;
