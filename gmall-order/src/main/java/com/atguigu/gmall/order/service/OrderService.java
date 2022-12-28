@@ -225,7 +225,7 @@ public class OrderService {
          *              消耗系统内存，增加了数据库的压力，存在较大的时间误差
          *          rabbitmq的延时队列和死信队列结合
          */
-        int i = 1 / 0; // 模拟服务器还没来得及创建订单, 就挂了
+//        int i = 1 / 0; // 模拟服务器还没来得及创建订单, 就挂了
 
         // 4. 创建订单
         UserInfo userInfo = LoginInterceptor.getUserInfo();
