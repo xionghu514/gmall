@@ -10,6 +10,7 @@ import com.atguigu.gmall.common.exception.OrderException;
 import com.atguigu.gmall.oms.vo.OrderItemVo;
 import com.atguigu.gmall.oms.vo.OrderSubmitVo;
 import com.atguigu.gmall.order.feign.GmallCartClient;
+import com.atguigu.gmall.order.feign.GmallOmsClient;
 import com.atguigu.gmall.order.feign.GmallPmsClient;
 import com.atguigu.gmall.order.feign.GmallSmsClient;
 import com.atguigu.gmall.order.feign.GmallUmsClient;
@@ -59,6 +60,9 @@ public class OrderService {
 
     @Autowired
     private GmallCartClient cartClient;
+
+    @Autowired
+    private GmallOmsClient omsClient;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -199,6 +203,15 @@ public class OrderService {
         }
 
         // 4. 创建订单
+        UserInfo userInfo = LoginInterceptor.getUserInfo();
+        Long userId = userInfo.getUserId();
+        try {
+            omsClient.saveOrder(submitVo, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: 发送消息给 wms 解锁库存
+        }
+
         // 5. 删除购物车中对应的记录(可以通过异步的方式进行删除, 1. 购物车删除失败也不影响订单创建, 2. 删除购物车时效性不高 提高一定时间. MQ 异步)
     }
 }

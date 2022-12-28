@@ -65,7 +65,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderEntity> impl
         orderEntity.setSourceType(1);
         orderEntity.setStatus(0);
         orderEntity.setDeliveryCompany(submitVo.getDeliveryCompany());
-        UserAddressEntity address = new UserAddressEntity();
+        UserAddressEntity address = submitVo.getAddress();
         if (address != null) {
             orderEntity.setReceiverRegion(address.getRegion());
             orderEntity.setReceiverProvince(address.getProvince());
