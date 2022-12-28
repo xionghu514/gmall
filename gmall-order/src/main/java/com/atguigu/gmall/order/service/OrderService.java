@@ -26,6 +26,7 @@ import com.atguigu.gmall.ums.entity.UserEntity;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import com.atguigu.gmall.wms.vo.SkuLockVo;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -33,7 +34,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -66,6 +69,9 @@ public class OrderService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     private final static String ORDER_PREFIX = "ORDER:TOKEN:";
 
@@ -212,6 +218,25 @@ public class OrderService {
             // TODO: 发送消息给 wms 解锁库存
         }
 
-        // 5. 删除购物车中对应的记录(可以通过异步的方式进行删除, 1. 购物车删除失败也不影响订单创建, 2. 删除购物车时效性不高 提高一定时间. MQ 异步)
+        /**
+         * 5. 删除购物车中对应的记录(可以通过异步的方式进行删除, 1. 购物车删除失败也不影响订单创建, 2. 删除购物车时效性不高 可以使用 MQ 异步 的方式节约一定时间.)
+         *      分布式事务问题
+         *
+         *      发送消息内容
+         *          1. 直接发送 userId, 根据 userId 把这个用户已选中的 购物车记录删除. 因为下单时是根据已选中的购物车进行下单的.
+         *              存在的问题: 存在偏差, 用户购物车存在多个商品有已选中的 还有未选中的. 一开始下单时可能只选中了其中的某些商品 还有些商品是为选中状态.
+         *              到达订单确认页面 可能又会回到购物车页面对未选中的商品 或者已选中的商品重新操作. 真正提交订单可能在这种过程中发送改变.
+         *              如果仅仅根据 userId 删除已选中的记录 就会导致真正提交订单的与删除的不一致
+         *          2. 发送 userId 跟 skuId.
+         *              创建 map, 包含两条数据 userId 与 skuIds
+         *
+         */
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        // 从送货清单获取全部的 skuId
+        List<Long> skuIds = items.stream().map(OrderItemVo::getSkuId).collect(Collectors.toList());
+        // 为什么要转换成 Json, 因为 rabbitmq 发送消息会把 数据转换成 二进制进行发送. map 中嵌套 List 可能会导致数据过于复杂 在来回转换的过程中可能会导致一些问题产生. 尽量简化处理, 序列化成 JSON 字符串 接收时在反序列化回来
+        map.put("skuIds", JSON.toJSONString(skuIds));
+        rabbitTemplate.convertAndSend("ORDER_EXCHANGE", "cart.delete", map);
     }
 }
