@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -51,6 +52,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderEntity> impl
         return new PageResultVo(page);
     }
 
+    @Transactional
     @Override
     public void saveOrder(OrderSubmitVo submitVo, Long userId) {
 
@@ -125,6 +127,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderEntity> impl
             itemMapper.insert(orderItemEntity);
         });
 
+        /**
+         * 模拟订单创建失败, 查看锁定库存是否已经解锁回去
+         *      断点打在 wms StockListener 更新订单状态为无效订单 代码上, 创建订单 放行 查看 库存表是不已经锁定库存成功
+         *      断点搭载 oms StockListener 根据 orderToken 获取锁定信息的缓存 代码上, 放行 查看库存表锁定库存数量是否已经还原
+         *
+         *          当创建订单表(提交订单)失败前 锁库存已经成功, 当创建订单失败 解锁也成功
+         */
+//        int i = 1 / 0;
+
+        /**
+         * 模拟订单创建成功, feign 超时. 查看锁定库存是否已经解锁回去
+         *      结果同上
+         */
+//        try {
+//            TimeUnit.SECONDS.sleep(4); // feign 超时是三秒, 此处睡四秒保证 feign 会超时
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
 }
