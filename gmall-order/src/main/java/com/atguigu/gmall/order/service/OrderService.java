@@ -1,6 +1,7 @@
 package com.atguigu.gmall.order.service;
 
 import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.atguigu.gmall.cart.pojo.Cart;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.common.exception.CartException;
@@ -24,9 +25,12 @@ import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -56,7 +60,6 @@ public class OrderService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Autowired
     private final static String ORDER_PREFIX = "ORDER:TOKEN:";
 
     public OrderConfirmVo confirm() {
@@ -131,13 +134,29 @@ public class OrderService {
         String orderToken = IdWorker.getIdStr();
         confirmVo.setOrderToken(orderToken);
 
-        redisTemplate.opsForValue().set(ORDER_PREFIX + orderToken, orderToken);
+        redisTemplate.opsForValue().set(ORDER_PREFIX + orderToken, orderToken, 24, TimeUnit.HOURS);
 
         return confirmVo;
     }
 
     public void submit(OrderSubmitVo submitVo) {
-        // 1. 防重提交(保证幂等)
+        // 1. 防重提交(保证幂等) 校验 redis 中是否存在 orderToken 如果存在立马删除并保证原子性
+        String orderToken = submitVo.getOrderToken();
+
+        if (StringUtils.isBlank(orderToken)) {
+            throw new OrderException("非法请求 orderToken 不存在");
+        }
+
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] " +
+                "then return redis.call('del', KEYS[1]) " +
+                "else return 0 end";
+        Boolean flag = this.redisTemplate.execute(
+                new DefaultRedisScript<>(script, Boolean.class), Arrays.asList(ORDER_PREFIX + orderToken), orderToken
+        );
+        if (!flag) {
+            throw new OrderException("您多次提交过快，请稍后再试！");
+        }
+
         // 2. 验价格: 验总价
         // TODO. sku 表限制购买数量. 限购件数验证
         // 3. 验库存并锁库存

@@ -1,5 +1,8 @@
 server:
   port: 18092 # 服务端口号
+  error: # 开启异常信息相应给前段
+    include-exception: true
+    include-message: always
 spring:
   cloud:
     nacos:
