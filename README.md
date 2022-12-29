@@ -34,7 +34,7 @@
 
 ![](https://oss.yiki.tech/oss/202212300106282.png)
 
-![](/Users/admin/Library/Application Support/typora-user-images/image-20221230010722691.png)
+![](https://oss.yiki.tech/oss/202212300135476.png)
 
 ![](https://oss.yiki.tech/oss/202212300108365.png)
 
