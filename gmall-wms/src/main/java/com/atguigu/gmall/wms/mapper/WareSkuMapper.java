@@ -25,4 +25,7 @@ public interface WareSkuMapper extends BaseMapper<WareSkuEntity> {
 
     // 解锁, 更新
     int unlock(@Param("id") Long id, @Param("count") Integer count);
+
+    // 减库存
+    int minus(@Param("id") Long id, @Param("count") Integer count);
 }

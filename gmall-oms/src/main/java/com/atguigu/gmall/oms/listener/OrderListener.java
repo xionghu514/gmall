@@ -78,4 +78,29 @@ public class OrderListener {
         // 可能用户已经在个人找到 该订单并支付支付
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue("OMS_PAY_QUEUE"),
+            exchange = @Exchange(value = "ORDER_EXCHANGE", ignoreDeclarationExceptions = "true", type = ExchangeTypes.TOPIC),
+            key = {"order.pay"}
+    ))
+    public void payOrder(String orderToken, Message message, Channel channel) throws IOException {
+
+        if (StringUtils.isBlank(orderToken)) {
+            // 垃圾消息直接确认
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            return;
+        }
+
+        // 更新订单状态为无效订单
+        if (orderMapper.updateStatus(orderToken, 0, 1) == 1) {
+            // 发送消息给 wms 减库存
+            rabbitTemplate.convertAndSend("ORDER_EXCHANGE", "stock.minus", orderToken);
+        } else {
+            // 发送消息给 支付工程, 退款
+        }
+
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
 }

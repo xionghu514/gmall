@@ -76,4 +76,45 @@ public class StockListener {
 
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue("STOCK_MINUS_QUEUE"),
+            exchange = @Exchange(value = "ORDER_EXCHANGE", ignoreDeclarationExceptions = "true", type = ExchangeTypes.TOPIC),
+            key = {"stock.minus"}
+    ))
+    public void minus(String orderToken, Message message, Channel channel) throws IOException {
+
+        if (StringUtils.isBlank(orderToken)) {
+            // 垃圾消息直接确认
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            return;
+        }
+
+        // 1. 根据 orderToken 获取锁定信息的缓存
+        String json = redisTemplate.opsForValue().get(KEY_PREFIX + orderToken);
+
+        // 2. 判空, 如果为空则直接确认消息
+        if (StringUtils.isBlank(json)) {
+            // 垃圾消息直接确认
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            return;
+        }
+
+        // 3. 不为空, 锁定信息集合, 并遍历解锁库存
+        List<SkuLockVo> skuLockVos = JSON.parseArray(json, SkuLockVo.class);
+        if (CollectionUtils.isEmpty(skuLockVos)) {
+            // 垃圾消息直接确认
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            return;
+        }
+
+        skuLockVos.forEach(lockVo -> {
+            wareSkuMapper.minus(lockVo.getWareSkuId(), lockVo.getCount());
+        });
+
+        // 4. 删除锁定信息缓存
+        redisTemplate.delete(KEY_PREFIX + orderToken);
+
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
 }

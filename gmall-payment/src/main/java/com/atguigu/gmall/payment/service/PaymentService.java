@@ -46,4 +46,12 @@ public class PaymentService {
         paymentMapper.insert(paymentInfoEntity);
         return paymentInfoEntity.getId();
     }
+
+    public PaymentInfoEntity queryPaymentInfoById(String payId) {
+        return paymentMapper.selectById(payId);
+    }
+
+    public int updatePaymentInfo(PaymentInfoEntity paymentInfoEntity) {
+        return paymentMapper.updateById(paymentInfoEntity);
+    }
 }

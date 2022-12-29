@@ -1,6 +1,7 @@
 package com.atguigu.gmall.payment.interceptors;
 
 import com.atguigu.gmall.payment.pojo.UserInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -33,9 +34,12 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 //        System.out.println("前置方法, 在 Controller 方法执行之前执行");
-
-        // 到达订单服务一定是登陆状态, 从请求头中获取
-        Long userId = Long.valueOf(request.getHeader("userId"));
+        String userIdString = request.getHeader("userId");
+        Long userId = null;
+        if (StringUtils.isNotBlank(userIdString)) {
+            // 到达订单服务一定是登陆状态, 从请求头中获取
+            userId = Long.valueOf(userIdString);
+        }
         String userName = request.getHeader("userName");
 
         // 已经获取了登陆信息
