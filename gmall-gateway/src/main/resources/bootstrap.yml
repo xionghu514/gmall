@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: gatewaty-api # 服务名称
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.0.101:8848 # 配置中心地址
+        namespace: # 命名空间 ID
+        group: # 配置文件分组
+        file-extension: # 配置文件扩展名, 默认是 properties

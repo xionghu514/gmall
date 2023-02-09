@@ -1,0 +1,29 @@
+server:
+  port: 8888 # 服务端口
+spring:
+  cloud:
+    nacos: # 注册中心配置
+      discovery:
+        server-addr: 192.168.0.101:8848 # 注册中心地址
+    gateway: # 网关
+      routes: # 路由
+        - id: pms-route # 路由唯一标识, 商品管理路由
+          uri: lb://pms-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/pms/** # 什么样的请求到此路由 进而进入路由该服务. pms 开头的请求 都 路由到 pms-service 服务
+        - id: ums-route # 路由唯一标识, 用户管理路由
+          uri: lb://ums-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/ums/** # 什么样的请求到此路由 进而进入路由该服务. ums 开头的请求 都 路由到 ums-service 服务
+        - id: wms-route # 路由唯一标识, 仓库管理路由
+          uri: lb://wms-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/wms/** # 什么样的请求到此路由 进而进入路由该服务. wms 开头的请求 都 路由到 wms-service 服务
+        - id: oms-route # 路由唯一标识, 订单管理路由
+          uri: lb://oms-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/oms/** # 什么样的请求到此路由 进而进入路由该服务. oms 开头的请求 都 路由到 oms-service 服务
+        - id: sms-route # 路由唯一标识, 营销管理路由
+          uri: lb://sms-service # 路由到那里, 路由到服务名对应的服务
+          predicates: # 断言
+            - Path=/sms/** # 什么样的请求到此路由 进而进入路由该服务. sms 开头的请求 都 路由到 sms-service 服务
