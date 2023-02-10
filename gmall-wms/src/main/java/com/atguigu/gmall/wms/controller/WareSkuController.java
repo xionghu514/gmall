@@ -1,23 +1,22 @@
 package com.atguigu.gmall.wms.controller;
 
-import java.util.List;
-
+import com.atguigu.gmall.common.bean.PageParamVo;
+import com.atguigu.gmall.common.bean.PageResultVo;
+import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.wms.entity.WareSkuEntity;
+import com.atguigu.gmall.wms.service.WareSkuService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.atguigu.gmall.wms.entity.WareSkuEntity;
-import com.atguigu.gmall.wms.service.WareSkuService;
-import com.atguigu.gmall.common.bean.PageResultVo;
-import com.atguigu.gmall.common.bean.ResponseVo;
-import com.atguigu.gmall.common.bean.PageParamVo;
+import java.util.List;
 
 /**
  * 商品库存
@@ -33,6 +32,21 @@ public class WareSkuController {
 
     @Autowired
     private WareSkuService wareSkuService;
+
+    /**
+     * 请求路径: http://api.gmall.com/wms/waresku/sku/1
+     * 根据skuId 查询 该商品库存
+     * @param skuId
+     * @return
+     */
+    @GetMapping("sku/{skuId}")
+    public ResponseVo<List<WareSkuEntity>> queryWareEntities(@PathVariable("skuId") Long skuId) {
+        List<WareSkuEntity> wareSkuEntities = wareSkuService.list(
+                new LambdaQueryWrapper<WareSkuEntity>().eq(WareSkuEntity::getSkuId, skuId)
+        );
+
+        return ResponseVo.ok(wareSkuEntities);
+    }
 
     /**
      * 列表
