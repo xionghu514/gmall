@@ -3,13 +3,19 @@ package com.atguigu.gmall.pms.service.impl;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.PageResultVo;
+import com.atguigu.gmall.pms.entity.SkuAttrValueEntity;
+import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuDescEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.pms.mapper.SkuMapper;
 import com.atguigu.gmall.pms.mapper.SpuDescMapper;
 import com.atguigu.gmall.pms.mapper.SpuMapper;
+import com.atguigu.gmall.pms.service.SkuAttrValueService;
+import com.atguigu.gmall.pms.service.SkuImagesService;
 import com.atguigu.gmall.pms.service.SpuAttrValueService;
 import com.atguigu.gmall.pms.service.SpuService;
+import com.atguigu.gmall.pms.vo.SkuVo;
 import com.atguigu.gmall.pms.vo.SpuAttrValueVo;
 import com.atguigu.gmall.pms.vo.SpuVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -35,6 +41,15 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
 
     @Autowired
     private SpuAttrValueService baseAttrService; // 1.3 保存 pms_spu_attr_value 基本属性值表
+
+    @Autowired
+    private SkuMapper skuMapper; // 2.1 保存 pms_sku
+
+    @Autowired
+    private SkuImagesService imagesService; // 2.2 保存 pms_sku_images 本质与 sku 是同一张表, 如果不为空才需要保存图片
+
+    @Autowired
+    private SkuAttrValueService saleAttrService;  // 2.3 保存 pms_sku_attr_value 销售属性值表
 
     @Override
     public PageResultVo queryPage(PageParamVo paramVo) {
@@ -118,14 +133,69 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
 
 
         // 2. 保存 sku 相关信息
-        // 2.1 保存 pms_sku
-        // 2.2 保存 pms_sku_images 本质与 sku 是同一张表, 如果不为空才需要保存图片
-        // 2.3 保存 pms_sku_attr_value 销售属性值表
+        List<SkuVo> skus = spu.getSkus();
+        // skus 不为 null 才进行保存
+        if (CollectionUtils.isNotEmpty(skus)) {
+            // 2.1 保存 pms_sku
+            skus.forEach(skuVo -> { // 每一个 skuVo 就是 一个 sku
+                skuVo.setSpuId(spuId); // 设置 spuId
+                skuVo.setBrandId(spu.getBrandId()); // 设置品牌 Id
+                skuVo.setCategoryId(spu.getCategoryId()); // 设置分类 Id
 
-        // 3. 保存 营销 相关信息
-        // 3.1 保存积分优惠表
-        // 3.2 保存满减优惠表
-        // 3.3 保存打折优惠表
+                // 获取 图片列表
+                List<String> images = skuVo.getImages();
+                // 如果图片列表不为空才设置默认图片
+                if (CollectionUtils.isNotEmpty(images)) {
+                    skuVo.setDefaultImage(
+                            // 判断 默认图片是否为空, 如果不为空设置为默认图片, 如果为空将 images 第一张设置为默认图片. 以后前端设置默认图片无需更改代码
+                            org.apache.commons.lang3.StringUtils.isNotBlank(skuVo.getDefaultImage())
+                                    ? skuVo.getDefaultImage() : images.get(0)
+                    );
+                }
+
+                skuMapper.insert(skuVo);
+
+                // 获取 保存后回显的 skuId, 提供给下方使用
+                Long skuId = skuVo.getId();
+
+                // 2.2 保存 pms_sku_images 本质与 sku 是同一张表, 如果不为空才需要保存图片
+                if (CollectionUtils.isNotEmpty(images)) {
+                    // 需要将 List<String> 转换为 List<skuImagesEntity>
+                    imagesService.saveBatch(
+                            images.stream().map(image -> {
+                                SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
+                                skuImagesEntity.setSkuId(skuId); // 设置 sku Id
+                                skuImagesEntity.setUrl(image); // 将 集合的每一个图片 设置为 Url
+                                skuImagesEntity.setSort(0); // 设置排序字段
+
+                                skuImagesEntity.setDefaultStatus( // 设置默认图片
+                                        // 将刚刚设置的默认图片与 遍历的图片比对, 相等 为 1 不等 为 0. url 互联网唯一
+                                        org.apache.commons.lang3.StringUtils.equals(skuVo.getDefaultImage(), image) ? 1 : 0
+                                );
+
+                                return skuImagesEntity;
+                            }).collect(Collectors.toList())
+                    );
+                }
+
+                // 2.3 保存 pms_sku_attr_value 销售属性值表
+                List<SkuAttrValueEntity> saleAttrs = skuVo.getSaleAttrs();
+                // 如果 saleAttrs 不为空才需要保存
+                if (CollectionUtils.isNotEmpty(saleAttrs)) {
+                    saleAttrs.forEach(skuAttrValueEntity -> {
+                        skuAttrValueEntity.setSkuId(skuId); // 设置 skuId
+                        skuAttrValueEntity.setSort(0); // 设置排序字段
+                    });
+
+                    saleAttrService.saveBatch(saleAttrs);
+                }
+
+                // 3. 保存 营销 相关信息
+                // 3.1 保存积分优惠表
+                // 3.2 保存满减优惠表
+                // 3.3 保存打折优惠表
+            });
+        }
     }
 
 }
