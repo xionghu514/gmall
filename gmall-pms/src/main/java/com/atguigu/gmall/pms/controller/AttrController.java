@@ -1,23 +1,22 @@
 package com.atguigu.gmall.pms.controller;
 
-import java.util.List;
-
+import com.atguigu.gmall.common.bean.PageParamVo;
+import com.atguigu.gmall.common.bean.PageResultVo;
+import com.atguigu.gmall.common.bean.ResponseVo;
+import com.atguigu.gmall.pms.entity.AttrEntity;
+import com.atguigu.gmall.pms.service.AttrService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.atguigu.gmall.pms.entity.AttrEntity;
-import com.atguigu.gmall.pms.service.AttrService;
-import com.atguigu.gmall.common.bean.PageResultVo;
-import com.atguigu.gmall.common.bean.ResponseVo;
-import com.atguigu.gmall.common.bean.PageParamVo;
+import java.util.List;
 
 /**
  * 商品属性
@@ -33,6 +32,22 @@ public class AttrController {
 
     @Autowired
     private AttrService attrService;
+
+    /**
+     * 根据属性分组id 查询 组下的属性
+     * 请求路径：http://api.gmall.com/pms/attr/group/1
+     *         http://api.gmall.com/pms/attr/group/{gid}
+     * @param gid
+     * @return
+     */
+    @GetMapping("group/{gid}")
+    public ResponseVo<List<AttrEntity>> queryAttrEntitiesByGid(@PathVariable("gid") Long gid) {
+        List<AttrEntity> attrEntityList = attrService.list(
+                new LambdaQueryWrapper<AttrEntity>().eq(AttrEntity::getGroupId, gid)
+        );
+
+        return ResponseVo.ok(attrEntityList);
+    }
 
     /**
      * 列表
