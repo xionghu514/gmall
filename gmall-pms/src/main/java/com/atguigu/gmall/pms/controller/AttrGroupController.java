@@ -34,6 +34,19 @@ public class AttrGroupController {
     private AttrGroupService attrGroupService;
 
     /**
+     * http://api.gmall.com/pms/attrgroup/withattrs/225
+     * 根据分类id 查询 属性分组和组下的参数
+     * @param cid
+     * @return
+     */
+    @GetMapping("withattrs/{cid}")
+    public ResponseVo<List<AttrGroupEntity>> queryAttrGroupsAndAttrsByCid(@PathVariable("cid") Long cid) {
+        List<AttrGroupEntity> attrGroupEntities = attrGroupService.queryAttrGroupsAndAttrsByCid(cid);
+
+        return ResponseVo.ok(attrGroupEntities);
+    }
+
+    /**
      * 根据分类id 查询 分类下的属性分组
      * @param cid
      * @return
