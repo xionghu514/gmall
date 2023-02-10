@@ -5,6 +5,7 @@ import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.SkuEntity;
 import com.atguigu.gmall.pms.service.SkuService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,20 @@ public class SkuController {
 
     @Autowired
     private SkuService skuService;
+
+    /**
+     * http://api.gmall.com/pms/sku/spu/7
+     * @param spuId
+     * @return
+     */
+    @GetMapping("spu/{spuId}")
+    public ResponseVo<List<SkuEntity>> querySkuEntitiesBySpuId(@PathVariable("spuId")Long spuId) {
+        List<SkuEntity> skuEntities = skuService.list(
+                new LambdaQueryWrapper<SkuEntity>().eq(SkuEntity::getSpuId, spuId)
+        );
+
+        return ResponseVo.ok(skuEntities);
+    }
 
     /**
      * 列表
