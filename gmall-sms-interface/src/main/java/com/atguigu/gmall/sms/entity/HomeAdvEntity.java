@@ -2,21 +2,21 @@ package com.atguigu.gmall.sms.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * 首页专题表【jd首页下面很多专题，每个专题链接新的页面，展示专题商品信息】
+ * 首页轮播广告
  * 
  * @author fengge
  * @email fengge@atguigu.com
  * @date 2023-02-09 13:55:42
  */
 @Data
-@TableName("sms_home_subject")
-public class HomeSubjectEntity implements Serializable {
+@TableName("sms_home_adv")
+public class HomeAdvEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -25,32 +25,48 @@ public class HomeSubjectEntity implements Serializable {
 	@TableId
 	private Long id;
 	/**
-	 * 专题名字
+	 * 名字
 	 */
 	private String name;
 	/**
-	 * 专题标题
+	 * 图片地址
 	 */
-	private String title;
+	private String pic;
 	/**
-	 * 专题副标题
+	 * 开始时间
 	 */
-	private String subTitle;
+	private Date startTime;
 	/**
-	 * 显示状态
+	 * 结束时间
+	 */
+	private Date endTime;
+	/**
+	 * 状态
 	 */
 	private Integer status;
 	/**
-	 * 详情连接
+	 * 点击数
+	 */
+	private Integer clickCount;
+	/**
+	 * 广告详情连接地址
 	 */
 	private String url;
+	/**
+	 * 备注
+	 */
+	private String note;
 	/**
 	 * 排序
 	 */
 	private Integer sort;
 	/**
-	 * 专题图片地址
+	 * 发布者
 	 */
-	private String img;
+	private Long publisherId;
+	/**
+	 * 审核者
+	 */
+	private Long authId;
 
 }
