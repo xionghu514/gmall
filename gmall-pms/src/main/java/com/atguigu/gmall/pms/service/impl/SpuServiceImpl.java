@@ -8,6 +8,7 @@ import com.atguigu.gmall.pms.entity.SkuImagesEntity;
 import com.atguigu.gmall.pms.entity.SpuAttrValueEntity;
 import com.atguigu.gmall.pms.entity.SpuDescEntity;
 import com.atguigu.gmall.pms.entity.SpuEntity;
+import com.atguigu.gmall.pms.feign.GmallSmsClient;
 import com.atguigu.gmall.pms.mapper.SkuMapper;
 import com.atguigu.gmall.pms.mapper.SpuDescMapper;
 import com.atguigu.gmall.pms.mapper.SpuMapper;
@@ -15,6 +16,7 @@ import com.atguigu.gmall.pms.service.SkuAttrValueService;
 import com.atguigu.gmall.pms.service.SkuImagesService;
 import com.atguigu.gmall.pms.service.SpuAttrValueService;
 import com.atguigu.gmall.pms.service.SpuService;
+import com.atguigu.gmall.pms.vo.SkuSaleVo;
 import com.atguigu.gmall.pms.vo.SkuVo;
 import com.atguigu.gmall.pms.vo.SpuAttrValueVo;
 import com.atguigu.gmall.pms.vo.SpuVo;
@@ -50,6 +52,9 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
 
     @Autowired
     private SkuAttrValueService saleAttrService;  // 2.3 保存 pms_sku_attr_value 销售属性值表
+
+    @Autowired
+    private GmallSmsClient smsClient; // 3. 保存 营销 相关信息
 
     @Override
     public PageResultVo queryPage(PageParamVo paramVo) {
@@ -190,10 +195,11 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
                     saleAttrService.saveBatch(saleAttrs);
                 }
 
-                // 3. 保存 营销 相关信息
-                // 3.1 保存积分优惠表
-                // 3.2 保存满减优惠表
-                // 3.3 保存打折优惠表
+                // 3. 保存 营销 相关信息 远程 -> com/atguigu/gmall/sms/SkuBoundsController
+                SkuSaleVo skuSaleVo = new SkuSaleVo();
+                BeanUtils.copyProperties(skuVo, skuSaleVo);
+                skuSaleVo.setSkuId(skuId);
+                smsClient.saveSales(skuSaleVo);
             });
         }
     }
